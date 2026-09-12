@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import Inventario from './Inventario'
 import Clientes from './Clientes'
-import { ARTICULOS_API_URL } from './config'
+import Pedidos from './Pedidos'
+import Ventas from './Ventas'
+import { API_BASE_URL, ARTICULOS_API_URL } from './config'
+import { apiFetch, clearAccessToken, getAccessToken, getAuthUser, setAccessToken, setAuthUser } from './auth'
 
 const API_URL = ARTICULOS_API_URL
 
@@ -14,6 +17,11 @@ const initialForm = {
 }
 
 function App() {
+  const [token, setToken] = useState(getAccessToken)
+  const [user, setUser] = useState(getAuthUser)
+  const [loginForm, setLoginForm] = useState({ email: '', password: '' })
+  const [loginError, setLoginError] = useState('')
+  const [loggingIn, setLoggingIn] = useState(false)
   const [seccionActiva, setSeccionActiva] = useState('articulos')
   const [articulos, setArticulos] = useState([])
   const [loading, setLoading] = useState(true)
@@ -21,10 +29,11 @@ function App() {
   const [editandoId, setEditandoId] = useState(null)
   const [form, setForm] = useState(initialForm)
   const [subiendoImagen, setSubiendoImagen] = useState(false)
+  const canAccessClientes = ['admin', 'encargado'].includes(user?.role)
 
   const fetchArticulos = async () => {
     try {
-      const res = await fetch(API_URL)
+      const res = await apiFetch(API_URL)
       const data = await res.json()
       setArticulos(data)
     } catch (error) {
@@ -35,8 +44,67 @@ function App() {
   }
 
   useEffect(() => {
-    fetchArticulos()
+    if (token) fetchArticulos()
+  }, [token])
+
+  useEffect(() => {
+    const handleAuthExpired = () => {
+      clearAccessToken()
+      setUser(null)
+      setToken(null)
+    }
+    window.addEventListener('auth-expired', handleAuthExpired)
+    return () => window.removeEventListener('auth-expired', handleAuthExpired)
   }, [])
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    setLoginError('')
+    setLoggingIn(true)
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginForm),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || 'No se pudo iniciar sesión')
+      setAccessToken(data.token)
+      setAuthUser(data.user)
+      setUser(data.user)
+      setToken(data.token)
+    } catch (error) {
+      setLoginError(error.message)
+    } finally {
+      setLoggingIn(false)
+    }
+  }
+
+  const handleLogout = () => {
+    clearAccessToken()
+    setUser(null)
+    setToken(null)
+  }
+
+  if (!token) {
+    return (
+      <main className="login-shell">
+        <form className="login-card" onSubmit={handleLogin}>
+          <p className="eyebrow">Store Admin</p>
+          <h1>Iniciar sesión</h1>
+          {loginError && <p className="login-error">{loginError}</p>}
+          <label htmlFor="login-email">Correo</label>
+          <input id="login-email" type="email" value={loginForm.email} onChange={(event) => setLoginForm({ ...loginForm, email: event.target.value })} required />
+          <label htmlFor="login-password">Contraseña</label>
+          <input id="login-password" type="password" value={loginForm.password} onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })} required />
+          <button className="primary-btn" type="submit" disabled={loggingIn}>
+            {loggingIn ? 'Validando...' : 'Entrar'}
+          </button>
+        </form>
+      </main>
+    )
+  }
 
   const handleChange = (e) => {
     setForm({
@@ -54,7 +122,7 @@ function App() {
     setSubiendoImagen(true)
 
     try {
-      const res = await fetch(`${API_URL}/imagen`, {
+      const res = await apiFetch(`${API_URL}/imagen`, {
         method: 'POST',
         body: datos,
       })
@@ -82,7 +150,7 @@ function App() {
     const url = editandoId ? `${API_URL}/${editandoId}` : API_URL
 
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +185,7 @@ function App() {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/${id}`, {
+      const res = await apiFetch(`${API_URL}/${id}`, {
         method: 'DELETE',
       })
 
@@ -167,14 +235,29 @@ function App() {
           >
             Inventario
           </button>
-          <button className="nav-item">Pedidos</button>
           <button 
-            className={`nav-item ${seccionActiva === 'clientes' ? 'active' : ''}`}
-            onClick={() => setSeccionActiva('clientes')}
+            className={`nav-item ${seccionActiva === 'pedidos' ? 'active' : ''}`}
+            onClick={() => setSeccionActiva('pedidos')}
           >
-            Clientes
+            Pedidos
           </button>
+          <button 
+            className={`nav-item ${seccionActiva === 'ventas' ? 'active' : ''}`}
+            onClick={() => setSeccionActiva('ventas')}
+          >
+            Ventas
+          </button>
+          {canAccessClientes && (
+            <button 
+              className={`nav-item ${seccionActiva === 'clientes' ? 'active' : ''}`}
+              onClick={() => setSeccionActiva('clientes')}
+            >
+              Clientes
+            </button>
+          )}
         </nav>
+        <p className="user-role">Sesión: {user?.role || 'admin'}</p>
+        <button className="nav-item logout-btn" onClick={handleLogout}>Cerrar sesión</button>
       </aside>
 
       <main className="content">
@@ -315,7 +398,11 @@ function App() {
           </>
         ) : seccionActiva === 'inventario' ? (
           <Inventario />
-        ) : seccionActiva === 'clientes' ? (
+        ) : seccionActiva === 'pedidos' ? (
+          <Pedidos />
+        ) : seccionActiva === 'ventas' ? (
+          <Ventas />
+        ) : seccionActiva === 'clientes' && canAccessClientes ? (
           <Clientes />
         ) : null}
       </main>

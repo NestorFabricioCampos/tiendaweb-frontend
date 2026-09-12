@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './Clientes.css'
 import { CLIENTES_API_URL as API_URL } from './config'
+import { apiFetch } from './auth'
 
 function Clientes() {
   const [clientes, setClientes] = useState([])
@@ -24,7 +25,7 @@ function Clientes() {
 
   const fetchClientes = async () => {
     try {
-      const res = await fetch(API_URL)
+      const res = await apiFetch(API_URL)
       const data = await res.json()
       setClientes(data)
     } catch (error) {
@@ -58,7 +59,7 @@ function Clientes() {
     const url = editandoId ? `${API_URL}/${editandoId}` : API_URL
 
     try {
-      const res = await fetch(url, {
+      const res = await apiFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -123,7 +124,7 @@ function Clientes() {
     }
 
     try {
-      const res = await fetch(`${API_URL}/${id}`, {
+      const res = await apiFetch(`${API_URL}/${id}`, {
         method: 'DELETE',
       })
 

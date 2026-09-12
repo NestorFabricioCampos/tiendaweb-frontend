@@ -254,6 +254,68 @@
   box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
 }
 
+.login-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background: #f5f7fb;
+}
+
+.login-card {
+  display: grid;
+  width: min(100%, 420px);
+  gap: 10px;
+  padding: 32px;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+.login-card h1 {
+  margin: 0 0 12px;
+}
+
+.login-card label {
+  color: #374151;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.login-card input {
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  border: 1px solid #dbe1ea;
+  border-radius: 10px;
+  background: #f8fafc;
+  font: inherit;
+}
+
+.login-card input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.login-error {
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.logout-btn {
+  margin-top: 24px;
+}
+
+.user-role {
+  margin: 18px 0 0;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
 @media (max-width: 900px) {
   .admin-shell {
     grid-template-columns: 1fr;

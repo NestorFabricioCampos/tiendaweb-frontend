@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import './Inventario.css'
 import { ARTICULOS_API_URL as API_URL } from './config'
+import { apiFetch } from './auth'
 
 function Inventario() {
   const [inventario, setInventario] = useState([])
@@ -14,7 +15,7 @@ function Inventario() {
 
   const fetchInventario = async () => {
     try {
-      const res = await fetch(API_URL)
+      const res = await apiFetch(API_URL)
       const data = await res.json()
       setInventario(data)
     } catch (error) {
@@ -65,7 +66,7 @@ function Inventario() {
 
   const handleActualizar = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/${id}`, {
+      const res = await apiFetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -102,7 +103,7 @@ function Inventario() {
     const nuevaCantidad = Math.max(0, (articulo.stock || 0) + cambio)
 
     try {
-      const res = await fetch(`${API_URL}/${id}`, {
+      const res = await apiFetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

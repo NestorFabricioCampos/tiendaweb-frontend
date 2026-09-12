@@ -1,0 +1,489 @@
+.pedidos-container {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  padding: 2rem;
+  background: #f8f9fa;
+  overflow-x: hidden;
+}
+
+.pedidos-header,
+.pedidos-table-card,
+.pedidos-stat-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pedidos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+}
+
+.pedidos-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.75rem;
+}
+
+.pedidos-refresh-btn {
+  padding: 0.75rem 1.5rem;
+  border: 0;
+  border-radius: 6px;
+  background: #6c757d;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.pedidos-refresh-btn:hover {
+  background: #5a6268;
+}
+
+.pedidos-error {
+  margin: 0 0 1.5rem;
+  padding: 1rem;
+  border-left: 4px solid #dc3545;
+  border-radius: 6px;
+  background: #fff1f2;
+  color: #842029;
+}
+
+.pedidos-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.pedidos-stat-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 0.8rem;
+  padding: 1.25rem;
+}
+
+.pedidos-stat-icon {
+  display: grid;
+  grid-row: span 2;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8f1ff;
+  color: #1769aa;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.pedidos-stat-label {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.pedidos-stat-card strong {
+  color: #333;
+  font-size: 1.4rem;
+}
+
+.pedidos-stat-card-warning {
+  border-left: 4px solid #ffc107;
+}
+
+.pedidos-stat-card-success {
+  border-left: 4px solid #28a745;
+}
+
+.pedidos-table-card {
+  overflow: hidden;
+}
+
+.pedidos-toolbar {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.pedidos-toolbar input,
+.pedidos-toolbar select {
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+  color: #333;
+  font: inherit;
+}
+
+.pedidos-toolbar input {
+  flex: 1;
+}
+
+.pedidos-toolbar select {
+  width: 220px;
+}
+
+.pedidos-toolbar input:focus,
+.pedidos-toolbar select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.pedidos-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pedidos-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.pedidos-table th,
+.pedidos-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  white-space: nowrap;
+}
+
+.pedidos-table th {
+  background: #f8f9fa;
+  color: #666;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pedidos-table tbody tr:hover {
+  background: #fafcff;
+}
+
+.pedido-number {
+  color: #1769aa;
+  font-weight: 700;
+}
+
+.pedido-items {
+  display: grid;
+  min-width: 210px;
+  gap: 0.4rem;
+}
+
+.pedido-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: #495057;
+  font-size: 0.85rem;
+}
+
+.pedido-item-status {
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.pedido-item-status-pendiente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.pedido-item-status-entregado {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.pedido-status {
+  display: inline-block;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: #e9ecef;
+  color: #495057;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pedido-status-pendiente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.pedido-status-procesando,
+.pedido-status-enviado {
+  background: #cfe2ff;
+  color: #084298;
+}
+
+.pedido-status-entregado {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.pedido-status-cancelado {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.pedido-toggle-btn {
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pedido-toggle-btn:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.pedido-toggle-pendiente {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+
+.pedido-toggle-entregado {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.pedidos-empty,
+.pedidos-loading {
+  padding: 2rem;
+  color: #666;
+  text-align: center;
+}
+
+@media (min-width: 901px) and (max-width: 1200px) {
+  .pedidos-container {
+    padding: 1.25rem;
+  }
+
+  .pedidos-header {
+    margin-bottom: 1.25rem;
+    padding: 1.15rem;
+  }
+
+  .pedidos-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .pedidos-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .pedidos-stat-card {
+    column-gap: 0.5rem;
+    padding: 0.85rem 0.65rem;
+  }
+
+  .pedidos-stat-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
+  .pedidos-stat-label {
+    font-size: 0.72rem;
+  }
+
+  .pedidos-stat-card strong {
+    font-size: 1.15rem;
+  }
+
+  .pedidos-toolbar {
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .pedidos-table th,
+  .pedidos-table td {
+    padding: 0.75rem 0.7rem;
+    font-size: 0.82rem;
+  }
+
+  .pedidos-table th {
+    font-size: 0.7rem;
+  }
+
+  .pedido-items {
+    min-width: 150px;
+  }
+
+  .pedido-toggle-btn {
+    padding: 0.45rem 0.55rem;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .pedidos-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .pedidos-header {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
+
+  .pedidos-header h2 {
+    font-size: 1.35rem;
+  }
+
+  .pedidos-refresh-btn {
+    width: 100%;
+  }
+
+  .pedidos-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .pedidos-stat-card {
+    column-gap: 0.55rem;
+    padding: 0.85rem 0.7rem;
+  }
+
+  .pedidos-stat-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.95rem;
+  }
+
+  .pedidos-stat-label {
+    font-size: 0.7rem;
+  }
+
+  .pedidos-stat-card strong {
+    font-size: 1.1rem;
+  }
+
+  .pedidos-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .pedidos-toolbar select {
+    width: 100%;
+  }
+
+  .pedidos-table-card {
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .pedidos-table-wrapper {
+    overflow: visible;
+  }
+
+  .pedidos-table,
+  .pedidos-table tbody,
+  .pedidos-table tr,
+  .pedidos-table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .pedidos-table thead {
+    display: none;
+  }
+
+  .pedidos-table tbody {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .pedidos-table tr {
+    padding: 1rem;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .pedidos-table td {
+    display: grid;
+    grid-template-columns: minmax(80px, 30%) minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .pedidos-table td:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .pedidos-table td::before {
+    content: attr(data-label);
+    color: #667085;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .pedido-items {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .pedido-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .pedido-toggle-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .pedidos-container {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .pedidos-stats-grid {
+    gap: 0.5rem;
+  }
+
+  .pedidos-stat-card {
+    grid-template-columns: 1fr;
+    justify-items: start;
+    row-gap: 0.2rem;
+  }
+
+  .pedidos-stat-icon {
+    grid-row: auto;
+  }
+
+  .pedidos-table td {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+}
