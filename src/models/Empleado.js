@@ -7,12 +7,22 @@ const empleadoSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    apellido: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
       trim: true
+    },
+    telefono: {
+      type: String,
+      trim: true,
+      default: ''
     },
     passwordHash: {
       type: String,

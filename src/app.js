@@ -2,6 +2,7 @@ const express = require('express');
 const articulosRoutes = require('./routes/articulosRoutes');
 const clientesRoutes = require('./routes/clientesRoutes');
 const pedidosRoutes = require('./routes/pedidosRoutes');
+const empleadosRoutes = require('./routes/empleadosRoutes');
 const authRoutes = require('./routes/authRoutes');
 const connectDB = require('./db/init');
 const {
@@ -31,7 +32,7 @@ app.use('/api', (req, res, next) => {
 app.get('/', (req, res) => {
   res.json({
     message: 'API de tienda web activa',
-    endpoints: ['/api/auth/login', '/api/articulos', '/api/clientes', '/api/pedidos']
+    endpoints: ['/api/auth/login', '/api/articulos', '/api/clientes', '/api/pedidos', '/api/empleados']
   });
 });
 
@@ -39,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/articulos', articulosRoutes);
 app.use('/api/clientes', clientesRoutes);
 app.use('/api/pedidos', pedidosRoutes);
+app.use('/api/empleados', empleadosRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);
