@@ -3,10 +3,15 @@ const multer = require('multer');
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 5 * 1024 * 1024,
+    files: 1,
+    fields: 10,
+    parts: 12
   },
   fileFilter: (req, file, callback) => {
-    if (file.mimetype.startsWith('image/')) {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+    if (allowedTypes.includes(file.mimetype)) {
       return callback(null, true);
     }
 

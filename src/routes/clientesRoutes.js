@@ -1,4 +1,6 @@
 const express = require('express');
+const { writeLimiter } = require('../middleware/security');
+const { authenticateToken, authorizeRoles } = require('../middleware/auth');
 const {
   getAllClientes,
   getClienteById,
@@ -8,11 +10,12 @@ const {
 } = require('../controllers/clientesController');
 
 const router = express.Router();
+router.use(authenticateToken, authorizeRoles('admin', 'encargado'));
 
 router.get('/', getAllClientes);
 router.get('/:id', getClienteById);
-router.post('/', createCliente);
-router.put('/:id', updateCliente);
-router.delete('/:id', deleteCliente);
+router.post('/', writeLimiter, createCliente);
+router.put('/:id', writeLimiter, updateCliente);
+router.delete('/:id', writeLimiter, deleteCliente);
 
 module.exports = router;
