@@ -4,6 +4,7 @@ import Inventario from './Inventario'
 import Clientes from './Clientes'
 import Pedidos from './Pedidos'
 import Ventas from './Ventas'
+import Empleados from './Empleados'
 import { API_BASE_URL, ARTICULOS_API_URL } from './config'
 import { apiFetch, clearAccessToken, getAccessToken, getAuthUser, setAccessToken, setAuthUser } from './auth'
 
@@ -30,6 +31,7 @@ function App() {
   const [form, setForm] = useState(initialForm)
   const [subiendoImagen, setSubiendoImagen] = useState(false)
   const canAccessClientes = ['admin', 'encargado'].includes(user?.role)
+  const canAccessEmpleados = ['admin', 'encargado'].includes(user?.role)
 
   const fetchArticulos = async () => {
     try {
@@ -255,6 +257,14 @@ function App() {
               Clientes
             </button>
           )}
+          {canAccessEmpleados && (
+            <button
+              className={`nav-item ${seccionActiva === 'empleados' ? 'active' : ''}`}
+              onClick={() => setSeccionActiva('empleados')}
+            >
+              Empleados
+            </button>
+          )}
         </nav>
         <p className="user-role">Sesión: {user?.role || 'admin'}</p>
         <button className="nav-item logout-btn" onClick={handleLogout}>Cerrar sesión</button>
@@ -404,6 +414,8 @@ function App() {
           <Ventas />
         ) : seccionActiva === 'clientes' && canAccessClientes ? (
           <Clientes />
+        ) : seccionActiva === 'empleados' && canAccessEmpleados ? (
+          <Empleados />
         ) : null}
       </main>
     </div>
