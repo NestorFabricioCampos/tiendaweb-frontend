@@ -42,14 +42,21 @@ const createPassword = () => `Tienda-${crypto.randomBytes(7).toString('base64url
 
   for (const [alias, nombre, role] of empleadosBase) {
     const email = `${alias}@tiendaweb.local`;
+    const existing = await Empleado.findOne({ email }).select('+passwordHash');
+
+    if (existing) {
+      await Empleado.updateOne(
+        { _id: existing._id },
+        { $set: { nombre, email, role, activo: true } }
+      );
+      credentials.push({ nombre, role, email, password: '[existente: no regenerada]' });
+      continue;
+    }
+
     const password = createPassword();
     const passwordHash = await bcrypt.hash(password, 12);
-    const empleado = await Empleado.findOneAndUpdate(
-      { email },
-      { nombre, email, passwordHash, role, activo: true },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
-    credentials.push({ nombre: empleado.nombre, role: empleado.role, email, password });
+    await Empleado.create({ nombre, email, passwordHash, role, activo: true });
+    credentials.push({ nombre, role, email, password });
   }
 
   console.log('Empleados creados o actualizados. Guarda estas credenciales en un gestor seguro:');

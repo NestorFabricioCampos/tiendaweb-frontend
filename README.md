@@ -67,8 +67,27 @@ npm run seed:empleados
 ```
 
 El comando guarda solo hashes bcrypt en la colección `empleados` y muestra las
-credenciales iniciales una vez. Los encargados pueden usar todos los módulos;
+credenciales de las cuentas nuevas una vez. Si la cuenta ya existe, conserva su
+hash y no invalida su contraseña. Los encargados pueden usar todos los módulos;
 los vendedores no tienen autorización para `/api/clientes`.
+
+Las cuentas iniciales son:
+
+- Encargados: `encargado1@tiendaweb.local`, `encargado2@tiendaweb.local`.
+- Vendedores: `vendedor1@tiendaweb.local` hasta `vendedor8@tiendaweb.local`.
+
+Las contraseñas no se pueden recuperar porque se almacenan como hashes bcrypt.
+Para restablecer una cuenta concreta, define las variables solo en el entorno
+local o en un shell seguro y ejecuta:
+
+```bash
+set RESET_EMAIL=encargado1@tiendaweb.local
+set RESET_PASSWORD=UnaNuevaContraseñaSegura
+npm run reset:empleado
+```
+
+En PowerShell usa `$env:RESET_EMAIL` y `$env:RESET_PASSWORD` en lugar de `set`.
+No incluyas estos valores en Git, logs, tickets o capturas de pantalla.
 
 ### GET /api/articulos
 
