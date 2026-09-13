@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manual de despliegue de TiendaWeb en Vercel y Heroku">
+  <title>Manual Vercel + Heroku | TiendaWeb</title>
+  <style>
+    :root { color: #1d2939; background: #f4f7fb; font-family: Georgia, 'Times New Roman', serif; line-height: 1.65; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .page { width: min(100% - 32px, 980px); margin: 32px auto; background: #fff; box-shadow: 0 16px 40px rgba(30, 41, 59, .1); }
+    header { padding: 56px 64px 44px; color: #fff; background: #172033; }
+    .kicker { margin: 0 0 12px; color: #a5b4fc; font: 700 12px/1.2 Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { max-width: 760px; margin: 0; font-size: clamp(2.1rem, 5vw, 3.8rem); }
+    .subtitle { max-width: 760px; margin: 18px 0 0; color: #d8dee9; font-size: 1.1rem; }
+    main { padding: 42px 64px 64px; }
+    h2 { margin: 42px 0 14px; color: #172033; font-size: 1.8rem; }
+    h2:first-child { margin-top: 0; }
+    h3 { margin: 28px 0 8px; color: #334155; font-size: 1.2rem; }
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 24px; }
+    li { margin: 7px 0; }
+    .notice { margin: 22px 0; padding: 16px 18px; border-left: 4px solid #6475e8; background: #eef2ff; }
+    .warning { border-left-color: #dc2626; background: #fef2f2; }
+    .success { border-left-color: #059669; background: #ecfdf5; }
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+    .steps li::before { content: counter(step); display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; color: #fff; background: #4f46e5; font: 700 14px Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: .94rem; }
+    th, td { padding: 11px 12px; border: 1px solid #dbe3ef; text-align: left; vertical-align: top; }
+    th { color: #172033; background: #eef2f7; }
+    code { padding: 2px 5px; border-radius: 4px; background: #eef2f7; font-family: Consolas, monospace; font-size: .92em; }
+    pre { overflow-x: auto; margin: 14px 0; padding: 16px; border-radius: 7px; color: #e2e8f0; background: #111827; font: .88rem/1.55 Consolas, 'Courier New', monospace; }
+    .checklist { list-style: none; padding-left: 0; }
+    .checklist li::before { content: '\2610'; margin-right: 8px; color: #4f46e5; font-size: 1.1rem; }
+    footer { padding: 22px 64px; color: #64748b; border-top: 1px solid #e2e8f0; font: .85rem Arial, sans-serif; }
+    @media print {
+      :root { background: #fff; }
+      .page { width: 100%; margin: 0; box-shadow: none; }
+      header { color: #000; background: #fff; border-bottom: 2px solid #172033; }
+      .kicker, .subtitle { color: #334155; }
+      main { padding: 28px 0; }
+      footer { padding: 22px 0; }
+      h2, h3 { break-after: avoid; }
+      table, .notice, pre { break-inside: avoid; }
+    }
+    @media (max-width: 640px) {
+      .page { width: 100%; margin: 0; }
+      header, main, footer { padding-left: 24px; padding-right: 24px; }
+      table { display: block; overflow-x: auto; white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <article class="page">
+    <header>
+      <p class="kicker">TiendaWeb · Manual técnico · Revisión 1.0</p>
+      <h1>Despliegue con Vercel y Heroku</h1>
+      <p class="subtitle">Guía paso a paso para publicar el frontend React/Vite en Vercel y la API Node/Express en Heroku, conectando MongoDB Atlas y Cloudinary.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>1. Nota sobre el coste</h2>
+        <div class="notice warning"><strong>Heroku no ofrece actualmente un nivel gratuito permanente.</strong> Sus dynos requieren un plan de pago o crédito/promoción vigente. Este manual explica la configuración técnica de Heroku, pero confirma el precio actual antes de publicar.</div>
+        <p>Vercel tiene un nivel Hobby con restricciones de uso y condiciones propias. MongoDB Atlas M0 y Cloudinary Free también tienen límites. Para un proyecto estrictamente sin coste, conserva la alternativa GitHub Pages + un proveedor de backend con free tier vigente descrita en el otro manual técnico.</p>
+      </section>
+
+      <section>
+        <h2>2. Arquitectura final</h2>
+        <table>
+          <thead><tr><th>Componente</th><th>Plataforma</th><th>URL de ejemplo</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend React/Vite</td><td>Vercel</td><td><code>https://tiendaweb.vercel.app</code></td></tr>
+            <tr><td>Backend Express</td><td>Heroku</td><td><code>https://tiendaweb-api.herokuapp.com</code></td></tr>
+            <tr><td>Base de datos</td><td>MongoDB Atlas</td><td>Cadena <code>mongodb+srv://...</code></td></tr>
+            <tr><td>Imágenes</td><td>Cloudinary</td><td>URLs HTTPS devueltas por la API</td></tr>
+          </tbody>
+        </table>
+        <p>El navegador visita Vercel. El frontend usa <code>VITE_API_URL</code> para llamar a Heroku. El backend se conecta desde Heroku a MongoDB Atlas y Cloudinary.</p>
+      </section>
+
+      <section>
+        <h2>3. Preparar los proyectos</h2>
+        <ol class="steps">
+          <li>Comprueba que el frontend y el backend estén en repositorios GitHub accesibles desde Vercel y Heroku.</li>
+          <li>Verifica que el frontend tenga <code>package-lock.json</code>, <code>vite.config.js</code> y los workflows de CI.</li>
+          <li>Verifica que el backend tenga <code>package-lock.json</code>, <code>package.json</code> y <code>src/server.js</code>.</li>
+          <li>Ejecuta las comprobaciones locales antes de desplegar.</li>
+        </ol>
+        <pre>cd app-TiendaWeb-frontend
+npm ci
+npm run lint
+npm run test:ci
+npm run build
+
+cd ../app-TiendaWeb-backend
+npm ci
+npm start</pre>
+        <div class="notice warning"><strong>No subas archivos <code>.env</code>.</strong> Usa las variables de entorno de cada plataforma. Si una credencial real se compartió o quedó en un commit, rótala aunque el archivo esté ignorado actualmente.</div>
+      </section>
+
+      <section>
+        <h2>4. Base de datos y Cloudinary</h2>
+        <h3>MongoDB Atlas</h3>
+        <ol class="steps">
+          <li>Crea un proyecto y un clúster M0 en MongoDB Atlas.</li>
+          <li>Crea un usuario de base de datos con contraseña única.</li>
+          <li>Agrega la red de salida del backend. Si el proveedor usa IPs dinámicas, Atlas puede requerir <code>0.0.0.0/0</code>; usa una contraseña fuerte y el menor privilegio posible.</li>
+          <li>Copia la cadena de conexión y reemplaza usuario, contraseña y nombre de base.</li>
+        </ol>
+        <pre>mongodb+srv://USUARIO:CONTRASENA@CLUSTER.mongodb.net/tiendaweb?retryWrites=true&amp;w=majority</pre>
+        <h3>Cloudinary</h3>
+        <p>Crea la cuenta y copia <code>CLOUDINARY_URL</code> desde el Dashboard. Esta variable va solo en Heroku. No debe aparecer en <code>VITE_*</code> ni en el repositorio.</p>
+      </section>
+
+      <section>
+        <h2>5. Desplegar el backend en Heroku</h2>
+        <h3>Opción A: desde el Dashboard</h3>
+        <ol class="steps">
+          <li>Crea una aplicación en el Dashboard de Heroku y elige una región.</li>
+          <li>En <strong>Deploy</strong>, conecta GitHub y selecciona el repositorio del backend.</li>
+          <li>Selecciona la rama <code>main</code>. Activa deploy automático solo después de probar el primer despliegue manual.</li>
+          <li>En <strong>Settings &gt; Config Vars</strong>, agrega las variables del bloque siguiente.</li>
+          <li>En <strong>Deploy</strong>, pulsa <strong>Deploy Branch</strong>.</li>
+          <li>Revisa los logs y copia la URL pública de Heroku.</li>
+        </ol>
+        <h3>Variables de Heroku</h3>
+        <pre>MONGO_URI=mongodb+srv://USUARIO:CONTRASENA@CLUSTER.mongodb.net/tiendaweb?retryWrites=true&amp;w=majority
+CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+AUTH_JWT_SECRET=SECRETO_ALEATORIO_DE_AL_MENOS_32_CARACTERES
+ADMIN_EMAIL=admin@tu-dominio.com
+ADMIN_PASSWORD_HASH=HASH_BCRYPT_DE_LA_CONTRASENA
+FRONTEND_ORIGINS=https://TU-PROYECTO.vercel.app</pre>
+        <p>No fijes manualmente <code>PORT</code> en Heroku: la plataforma proporciona ese valor. El backend del proyecto ejecuta <code>npm start</code>, que Heroku detecta desde <code>package.json</code>.</p>
+        <h3>Opción B: Heroku CLI</h3>
+        <p>Instala la CLI, inicia sesión y ejecuta los comandos desde la raíz del backend:</p>
+        <pre>heroku login
+cd app-TiendaWeb-backend
+heroku create tiendaweb-api
+heroku config:set MONGO_URI="mongodb+srv://..."
+heroku config:set CLOUDINARY_URL="cloudinary://..."
+heroku config:set AUTH_JWT_SECRET="SECRETO_LARGO"
+heroku config:set ADMIN_EMAIL="admin@tu-dominio.com"
+heroku config:set ADMIN_PASSWORD_HASH="HASH_BCRYPT"
+heroku config:set FRONTEND_ORIGINS="https://TU-PROYECTO.vercel.app"
+git push heroku main
+heroku logs --tail --app tiendaweb-api</pre>
+        <p>Si el repositorio contiene frontend y backend juntos, configura el directorio de trabajo/deploy correspondiente o despliega desde una copia donde el backend sea la raíz. Heroku debe encontrar el <code>package.json</code> del backend.</p>
+      </section>
+
+      <section>
+        <h2>6. Generar secretos y credenciales</h2>
+        <pre>node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+node -e "require('bcryptjs').hash(process.argv[1], 12).then(console.log)" "CAMBIA_ESTA_CONTRASENA"</pre>
+        <p>Usa el primer resultado como <code>AUTH_JWT_SECRET</code> y el segundo como <code>ADMIN_PASSWORD_HASH</code>. Conserva la contraseña original en un gestor de contraseñas, no en un archivo del proyecto.</p>
+      </section>
+
+      <section>
+        <h2>7. Verificar el backend de Heroku</h2>
+        <pre>curl -i https://TU-APP.herokuapp.com/
+curl -i https://TU-APP.herokuapp.com/api/articulos
+curl -i -X OPTIONS https://TU-APP.herokuapp.com/api/articulos</pre>
+        <p>La ruta raíz debe devolver JSON con el mensaje de API activa. Si aparece un error de conexión a MongoDB, revisa <code>MONGO_URI</code> y Network Access en Atlas.</p>
+        <p>Para crear los empleados iniciales, ejecuta el seed en un entorno que tenga las mismas variables y conexión:</p>
+        <pre>heroku run npm run seed:empleados --app TU-APP</pre>
+        <div class="notice warning">Ejecuta el seed una sola vez y entrega las credenciales iniciales por un canal seguro. No las pongas en issues, commits ni chats públicos.</div>
+      </section>
+
+      <section>
+        <h2>8. Desplegar el frontend en Vercel</h2>
+        <ol class="steps">
+          <li>En Vercel selecciona <strong>Add New &gt; Project</strong> y conecta GitHub.</li>
+          <li>Importa el repositorio de <strong>app-TiendaWeb-frontend</strong>.</li>
+          <li>Si el repositorio contiene solo el frontend, deja la raíz del proyecto vacía. Si es monorepo, selecciona la carpeta del frontend.</li>
+          <li>Vercel debería detectar Vite. Confirma <code>npm run build</code> como build command y <code>dist</code> como output directory.</li>
+          <li>En <strong>Environment Variables</strong>, agrega <code>VITE_API_URL</code> con la URL HTTPS de Heroku, sin barra final.</li>
+          <li>Selecciona los entornos Production y Preview según necesites y pulsa <strong>Deploy</strong>.</li>
+          <li>Conserva la URL de producción, por ejemplo <code>https://tiendaweb.vercel.app</code>.</li>
+        </ol>
+        <pre>VITE_API_URL=https://TU-APP.herokuapp.com</pre>
+        <p>La configuración actual de Vite usa base <code>/</code> fuera de GitHub Actions, que es la configuración adecuada para Vercel. No uses la base de GitHub Pages en este despliegue.</p>
+      </section>
+
+      <section>
+        <h2>9. Configurar CORS entre Vercel y Heroku</h2>
+        <p>Vuelve a Heroku y actualiza <code>FRONTEND_ORIGINS</code> con el origen exacto de producción:</p>
+        <pre>FRONTEND_ORIGINS=https://TU-PROYECTO.vercel.app</pre>
+        <p>El origen no incluye una ruta ni una barra final. Si necesitas probar previews de Vercel, agrega sus orígenes concretos separados por comas, por ejemplo:</p>
+        <pre>FRONTEND_ORIGINS=https://TU-PROYECTO.vercel.app,https://rama-git-TU-PROYECTO.vercel.app</pre>
+        <p>No pongas <code>*</code> como solución permanente. Después de guardar la variable, reinicia/redepliega Heroku.</p>
+      </section>
+
+      <section>
+        <h2>10. CI/CD recomendado</h2>
+        <p>El frontend ya incluye workflows para validar pull requests y desplegar GitHub Pages. Al usar Vercel, puedes elegir una de estas estrategias:</p>
+        <table>
+          <thead><tr><th>Estrategia</th><th>Ventaja</th><th>Configuración</th></tr></thead>
+          <tbody>
+            <tr><td>Vercel Git Integration</td><td>Previews automáticos y deploy sencillo.</td><td>Importa el repo y configura <code>VITE_API_URL</code> en Vercel.</td></tr>
+            <tr><td>GitHub Actions</td><td>Controles explícitos antes del deploy.</td><td>Conserva CI y configura el deploy de Vercel con un token/secreto, nunca en texto plano.</td></tr>
+            <tr><td>Heroku Automatic Deploys</td><td>El backend se redepliega al actualizar main.</td><td>Actívalo después de probar manualmente y protege la rama.</td></tr>
+          </tbody>
+        </table>
+        <p>Una política recomendable es exigir que <strong>Validate frontend</strong> pase antes de aceptar pull requests y desplegar el backend desde <code>main</code> protegido.</p>
+      </section>
+
+      <section>
+        <h2>11. Prueba completa de aceptación</h2>
+        <ol class="steps">
+          <li>Abre la URL de Vercel en una ventana privada.</li>
+          <li>Confirma que el login carga sin errores de red.</li>
+          <li>Inicia sesión con el administrador y comprueba Artículos, Inventario, Pedidos y Ventas.</li>
+          <li>Comprueba que el catálogo procede de la API de Heroku.</li>
+          <li>Sube una imagen pequeña y confirma que la URL pertenece a Cloudinary.</li>
+          <li>Registra una venta de prueba y comprueba su pedido.</li>
+          <li>Prueba una cuenta de encargado y una de vendedor para validar permisos.</li>
+          <li>Revisa la consola del navegador y los logs de Heroku: no debe haber errores CORS, 401, 404 o mixed content.</li>
+          <li>Verifica en Vercel que el deployment de producción termina correctamente.</li>
+        </ol>
+        <pre>curl -i https://TU-APP.herokuapp.com/
+curl -i https://TU-APP.herokuapp.com/api/articulos</pre>
+      </section>
+
+      <section>
+        <h2>12. Problemas frecuentes</h2>
+        <table>
+          <thead><tr><th>Problema</th><th>Causa</th><th>Solución</th></tr></thead>
+          <tbody>
+            <tr><td>Vercel muestra una pantalla vacía</td><td>Variable de API ausente o build mal configurado.</td><td>Revisa <code>VITE_API_URL</code>, build command y output <code>dist</code>; revisa los logs de build.</td></tr>
+            <tr><td>Error CORS en el navegador</td><td>Heroku no reconoce el dominio Vercel.</td><td>Actualiza <code>FRONTEND_ORIGINS</code> con el origen exacto y reinicia Heroku.</td></tr>
+            <tr><td>API devuelve 503 en Heroku</td><td>Dyno detenido, variables faltantes o proceso que no inicia.</td><td>Usa <code>heroku logs --tail</code> y revisa que <code>npm start</code> exista.</td></tr>
+            <tr><td>API no conecta a MongoDB</td><td>Cadena incorrecta o IP no autorizada en Atlas.</td><td>Revisa usuario, contraseña, nombre de base y Network Access.</td></tr>
+            <tr><td>Login devuelve 401</td><td>Hash, correo o secreto JWT incorrectos.</td><td>Regenera el hash, revisa <code>ADMIN_EMAIL</code> y no confundas contraseña con hash.</td></tr>
+            <tr><td>Las imágenes fallan</td><td>Cloudinary ausente o URL mal formada.</td><td>Configura <code>CLOUDINARY_URL</code> únicamente en Heroku y revisa logs.</td></tr>
+            <tr><td>El despliegue de Heroku cobra o se bloquea</td><td>Heroku no tiene free tier permanente.</td><td>Revisa billing y considera Render/Koyeb u otro proveedor con free tier vigente.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>13. Seguridad y mantenimiento</h2>
+        <ul class="checklist">
+          <li>Rota toda credencial expuesta, incluso si fue retirada después del commit.</li>
+          <li>No coloques <code>CLOUDINARY_URL</code>, JWT, hashes ni <code>MONGO_URI</code> en el frontend.</li>
+          <li>Recuerda que cualquier variable <code>VITE_*</code> es visible en el navegador.</li>
+          <li>Limita CORS al dominio de Vercel y a previews necesarias.</li>
+          <li>Activa protección de rama en GitHub.</li>
+          <li>Revisa límites y facturación de Vercel, Heroku, Atlas y Cloudinary.</li>
+          <li>Haz respaldos de MongoDB antes de cambios destructivos.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>14. Checklist final</h2>
+        <ul class="checklist">
+          <li>MongoDB Atlas responde desde Heroku.</li>
+          <li>Cloudinary está configurado en Heroku.</li>
+          <li>Heroku ejecuta <code>npm start</code> y su ruta raíz responde.</li>
+          <li><code>FRONTEND_ORIGINS</code> contiene el origen Vercel.</li>
+          <li>Vercel usa <code>npm run build</code>, <code>dist</code> y <code>VITE_API_URL</code>.</li>
+          <li>Login y rutas protegidas funcionan desde producción.</li>
+          <li>La carga de imágenes funciona.</li>
+          <li>La suite local de lint, tests y build pasa.</li>
+          <li>Los logs de Vercel y Heroku están limpios.</li>
+          <li>El plan y los límites de Heroku están confirmados.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>Manual Vercel + Heroku · TiendaWeb · Frontend React/Vite + Backend Node/Express · Revisión 1.0</footer>
+  </article>
+</body>
+</html>

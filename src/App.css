@@ -75,6 +75,23 @@
   font-weight: 600;
 }
 
+.manual-link {
+  display: block;
+  margin-top: 24px;
+  padding: 11px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  color: #e0e7ff;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.manual-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
 .content {
   padding: 32px;
 }
@@ -195,6 +212,16 @@
   background: #e5e7eb;
 }
 
+.articulo-image-placeholder {
+  display: grid;
+  width: 100%;
+  height: 190px;
+  place-items: center;
+  background: #e8edf3;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
 .card-body {
   padding: 16px;
 }
@@ -297,6 +324,30 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
+.deployment-manual-link {
+  color: #1d4ed8;
+  font-size: 0.9rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.deployment-manual-link:hover {
+  text-decoration: underline;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.35);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 .login-error {
   margin: 0 0 8px;
   padding: 10px 12px;
@@ -325,11 +376,22 @@
     padding-bottom: 18px;
   }
 
+  .nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .content {
     padding: 20px;
   }
 
   .articulo-form {
     grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
   }
 }

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import './Ventas.css'
 import { ARTICULOS_API_URL, PEDIDOS_API_URL } from './config'
-import { apiFetch } from './auth'
+import { apiFetch, readResponse } from './auth'
+import { addToCart, buildSalePayload, getCartTotal, getCartUnits, setCartQuantity } from './domain'
 
 const initialCliente = {
   nombre: '',
@@ -24,7 +25,7 @@ function Ventas() {
     try {
       const res = await apiFetch(ARTICULOS_API_URL)
       if (!res.ok) throw new Error('No se pudieron cargar los artículos')
-      const data = await res.json()
+      const data = await readResponse(res)
       setArticulos(Array.isArray(data) ? data : [])
     } catch (requestError) {
       console.error('Error al cargar artículos para venta:', requestError)
@@ -39,26 +40,11 @@ function Ventas() {
   }, [])
 
   const agregarAlCarrito = (articulo) => {
-    const stockDisponible = Number(articulo.stock || 0)
-    if (stockDisponible < 1) return
-
-    setCarrito((actual) => {
-      const existente = actual.find((item) => item._id === articulo._id)
-      if (existente) {
-        return actual.map((item) => item._id === articulo._id
-          ? { ...item, cantidad: Math.min(item.cantidad + 1, stockDisponible) }
-          : item)
-      }
-      return [...actual, { ...articulo, cantidad: 1, estado: 'pendiente' }]
-    })
+    setCarrito((actual) => addToCart(actual, articulo))
   }
 
   const cambiarCantidad = (id, cantidad) => {
-    setCarrito((actual) => actual.map((item) => {
-      if (item._id !== id) return item
-      const cantidadSegura = Math.max(1, Math.min(Number(cantidad) || 1, Number(item.stock || 1)))
-      return { ...item, cantidad: cantidadSegura }
-    }))
+    setCarrito((actual) => setCartQuantity(actual, id, cantidad))
   }
 
   const cambiarEstadoPedido = (estado) => {
@@ -70,8 +56,8 @@ function Ventas() {
     setCarrito((actual) => actual.filter((item) => item._id !== id))
   }
 
-  const total = carrito.reduce((suma, item) => suma + Number(item.Precio || 0) * item.cantidad, 0)
-  const unidades = carrito.reduce((suma, item) => suma + item.cantidad, 0)
+  const total = getCartTotal(carrito)
+  const unidades = getCartUnits(carrito)
   const articulosFiltrados = articulos.filter((articulo) =>
     articulo.Articulo.toLowerCase().includes(busqueda.toLowerCase())
   )
@@ -96,25 +82,11 @@ function Ventas() {
       const res = await apiFetch(PEDIDOS_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cliente: cliente.nombre.trim(),
-          nombreCliente: cliente.nombre.trim(),
-          email: cliente.email.trim(),
-          items: carrito.map((item) => ({
-            articuloId: item._id,
-            nombre: item.Articulo,
-            precio: Number(item.Precio || 0),
-            cantidad: item.cantidad,
-            subtotal: Number(item.Precio || 0) * item.cantidad,
-            estado: item.estado || 'pendiente',
-          })),
-          total,
-          estado: estadoPedido,
-        }),
+        body: JSON.stringify(buildSalePayload(carrito, cliente, estadoPedido)),
       })
 
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'No se pudo registrar la venta')
+      const data = await readResponse(res)
+      if (!res.ok) throw new Error(data?.message || 'No se pudo registrar la venta')
 
       setMensaje(`Venta registrada correctamente: pedido #${data.numero}`)
       setCarrito([])

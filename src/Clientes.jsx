@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './Clientes.css'
 import { CLIENTES_API_URL as API_URL } from './config'
-import { apiFetch } from './auth'
+import { apiFetch, readResponse } from './auth'
 
 function Clientes() {
   const [clientes, setClientes] = useState([])
@@ -26,8 +26,9 @@ function Clientes() {
   const fetchClientes = async () => {
     try {
       const res = await apiFetch(API_URL)
-      const data = await res.json()
-      setClientes(data)
+      const data = await readResponse(res)
+      if (!res.ok) throw new Error(data?.message || 'No se pudieron cargar los clientes')
+      setClientes(Array.isArray(data) ? data : data?.clientes || [])
     } catch (error) {
       console.error('Error al cargar clientes:', error)
     } finally {
@@ -67,10 +68,10 @@ function Clientes() {
         body: JSON.stringify(form),
       })
 
-      const data = await res.json()
+      const data = await readResponse(res)
 
       if (!res.ok) {
-        alert(data.message || 'Error al guardar')
+        alert(data?.message || 'Error al guardar')
         return
       }
 
@@ -128,10 +129,10 @@ function Clientes() {
         method: 'DELETE',
       })
 
-      const data = await res.json()
+      const data = await readResponse(res)
 
       if (!res.ok) {
-        alert(data.message || 'Error al eliminar')
+        alert(data?.message || 'Error al eliminar')
         return
       }
 

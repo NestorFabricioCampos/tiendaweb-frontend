@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './Empleados.css'
 import { EMPLEADOS_API_URL as API_URL } from './config'
-import { apiFetch } from './auth'
+import { apiFetch, readResponse } from './auth'
 
 const initialForm = {
   nombre: '',
@@ -32,7 +32,7 @@ function Empleados() {
     try {
       const res = await apiFetch(API_URL)
       const contentType = res.headers.get('content-type') || ''
-      const data = contentType.includes('application/json') ? await res.json() : null
+      const data = contentType.includes('application/json') ? await readResponse(res) : null
       if (!res.ok) throw new Error(data?.message || `No se pudo cargar la lista de empleados (${res.status})`)
       if (!data) throw new Error('El servidor de empleados no devolvió una respuesta JSON')
       setEmpleados(Array.isArray(data) ? data : data.empleados || [])
@@ -73,8 +73,8 @@ function Empleados() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(datos),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'No se pudo guardar el empleado')
+      const data = await readResponse(res)
+      if (!res.ok) throw new Error(data?.message || 'No se pudo guardar el empleado')
 
       setMensaje(editandoId ? 'Empleado actualizado correctamente' : 'Empleado agregado correctamente')
       setTimeout(() => setMensaje(''), 3000)
@@ -106,8 +106,8 @@ function Empleados() {
 
     try {
       const res = await apiFetch(`${API_URL}/${id}`, { method: 'DELETE' })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'No se pudo eliminar el empleado')
+      const data = await readResponse(res)
+      if (!res.ok) throw new Error(data?.message || 'No se pudo eliminar el empleado')
       setMensaje('Empleado eliminado correctamente')
       setTimeout(() => setMensaje(''), 3000)
       fetchEmpleados()

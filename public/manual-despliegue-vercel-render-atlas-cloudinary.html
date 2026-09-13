@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manual completo de despliegue de TiendaWeb con Vercel, Render, MongoDB Atlas y Cloudinary">
+  <title>Manual del stack recomendado | TiendaWeb</title>
+  <style>
+    :root { color: #1d2939; background: #f4f7fb; font-family: Georgia, 'Times New Roman', serif; line-height: 1.65; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .page { width: min(100% - 32px, 1000px); margin: 32px auto; background: #fff; box-shadow: 0 16px 40px rgba(30, 41, 59, .1); }
+    header { padding: 56px 64px 44px; color: #fff; background: #172033; }
+    .kicker { margin: 0 0 12px; color: #a5b4fc; font: 700 12px/1.2 Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { max-width: 820px; margin: 0; font-size: clamp(2.1rem, 5vw, 3.8rem); }
+    .subtitle { max-width: 820px; margin: 18px 0 0; color: #d8dee9; font-size: 1.1rem; }
+    main { padding: 42px 64px 64px; }
+    h2 { margin: 42px 0 14px; color: #172033; font-size: 1.8rem; }
+    h2:first-child { margin-top: 0; }
+    h3 { margin: 28px 0 8px; color: #334155; font-size: 1.2rem; }
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 24px; }
+    li { margin: 7px 0; }
+    .notice { margin: 22px 0; padding: 16px 18px; border-left: 4px solid #6475e8; background: #eef2ff; }
+    .warning { border-left-color: #dc2626; background: #fef2f2; }
+    .success { border-left-color: #059669; background: #ecfdf5; }
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+    .steps li::before { content: counter(step); display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; color: #fff; background: #4f46e5; font: 700 14px Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: .94rem; }
+    th, td { padding: 11px 12px; border: 1px solid #dbe3ef; text-align: left; vertical-align: top; }
+    th { color: #172033; background: #eef2f7; }
+    code { padding: 2px 5px; border-radius: 4px; background: #eef2f7; font-family: Consolas, monospace; font-size: .92em; }
+    pre { overflow-x: auto; margin: 14px 0; padding: 16px; border-radius: 7px; color: #e2e8f0; background: #111827; font: .88rem/1.55 Consolas, 'Courier New', monospace; }
+    .checklist { list-style: none; padding-left: 0; }
+    .checklist li::before { content: '\2610'; margin-right: 8px; color: #4f46e5; font-size: 1.1rem; }
+    footer { padding: 22px 64px; color: #64748b; border-top: 1px solid #e2e8f0; font: .85rem Arial, sans-serif; }
+    @media print {
+      :root { background: #fff; }
+      .page { width: 100%; margin: 0; box-shadow: none; }
+      header { color: #000; background: #fff; border-bottom: 2px solid #172033; }
+      .kicker, .subtitle { color: #334155; }
+      main { padding: 28px 0; }
+      footer { padding: 22px 0; }
+      h2, h3 { break-after: avoid; }
+      table, .notice, pre { break-inside: avoid; }
+    }
+    @media (max-width: 640px) {
+      .page { width: 100%; margin: 0; }
+      header, main, footer { padding-left: 24px; padding-right: 24px; }
+      table { display: block; overflow-x: auto; white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <article class="page">
+    <header>
+      <p class="kicker">TiendaWeb · Manual técnico · Revisión 1.0</p>
+      <h1>Despliegue del stack Vercel + Render + MongoDB Atlas + Cloudinary</h1>
+      <p class="subtitle">Guía completa para publicar el frontend React/Vite, la API Node/Express, la base de datos y el almacenamiento de imágenes en servicios independientes.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>1. Resultado final</h2>
+        <table>
+          <thead><tr><th>Capa</th><th>Servicio</th><th>Ejemplo de URL o valor</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend</td><td>Vercel</td><td><code>https://tiendaweb.vercel.app</code></td></tr>
+            <tr><td>Backend</td><td>Render Web Service</td><td><code>https://tiendaweb-api.onrender.com</code></td></tr>
+            <tr><td>Base de datos</td><td>MongoDB Atlas M0</td><td><code>mongodb+srv://...</code></td></tr>
+            <tr><td>Imágenes</td><td>Cloudinary Free</td><td>URLs HTTPS devueltas por la API</td></tr>
+          </tbody>
+        </table>
+        <p>El navegador carga el frontend desde Vercel. El frontend llama al backend de Render mediante <code>VITE_API_URL</code>. Render conecta con Atlas mediante <code>MONGO_URI</code> y sube imágenes a Cloudinary mediante <code>CLOUDINARY_URL</code>.</p>
+        <div class="notice success"><strong>Orden recomendado:</strong> primero Atlas y Cloudinary, después Render, y finalmente Vercel. Así puedes configurar la URL real del backend y el origen real del frontend en el lugar correcto.</div>
+        <div class="notice warning"><strong>Planes gratuitos:</strong> los límites, disponibilidad y condiciones pueden cambiar. Render puede suspender servicios inactivos; Atlas, Cloudinary y Vercel tienen límites de uso. Revisa siempre las condiciones actuales.</div>
+      </section>
+
+      <section>
+        <h2>2. Requisitos previos</h2>
+        <ul class="checklist">
+          <li>Cuenta de GitHub con acceso al repositorio frontend y al repositorio backend.</li>
+          <li>Cuenta de Vercel, Render, MongoDB Atlas y Cloudinary.</li>
+          <li>Node.js 20 o superior, npm y Git instalados localmente.</li>
+          <li>Una contraseña administrativa segura.</li>
+          <li>Un gestor de contraseñas para guardar secretos.</li>
+        </ul>
+        <pre>node --version
+npm --version
+git --version</pre>
+        <p>Si frontend y backend están en repositorios separados, cada plataforma debe conectarse al repositorio correspondiente. Si están en un monorepo, configura el Root Directory de cada servicio.</p>
+      </section>
+
+      <section>
+        <h2>3. Seguridad antes de publicar</h2>
+        <div class="notice warning"><strong>No subas secretos a GitHub:</strong> nunca confirmes archivos <code>.env</code>, contraseñas, tokens, <code>MONGO_URI</code>, <code>CLOUDINARY_URL</code>, JWT ni hashes administrativos.</div>
+        <ol class="steps">
+          <li>Ejecuta <code>git status</code> y confirma que no aparecen archivos de entorno.</li>
+          <li>Revisa commits anteriores si el proyecto ya fue publicado.</li>
+          <li>Rota cualquier credencial real que haya sido compartida o expuesta.</li>
+          <li>Configura secretos únicamente en Render, variables públicas del frontend únicamente en Vercel y GitHub Actions.</li>
+        </ol>
+        <p>Las variables que empiezan por <code>VITE_</code> llegan al navegador. Nunca pongas ahí claves privadas de MongoDB, Cloudinary o JWT.</p>
+      </section>
+
+      <section>
+        <h2>4. Preparar y probar el backend</h2>
+        <p>El backend actual utiliza Node.js, Express, Mongoose, JWT, Helmet, CORS, rate limiting, Multer y Cloudinary. Sus scripts principales son:</p>
+        <table>
+          <thead><tr><th>Comando</th><th>Uso</th></tr></thead>
+          <tbody>
+            <tr><td><code>npm start</code></td><td>Arranque de producción mediante <code>src/server.js</code>.</td></tr>
+            <tr><td><code>npm run dev</code></td><td>Desarrollo local con nodemon.</td></tr>
+            <tr><td><code>npm run seed:empleados</code></td><td>Creación de empleados iniciales.</td></tr>
+          </tbody>
+        </table>
+        <pre>cd app-TiendaWeb-backend
+npm ci
+npm start</pre>
+        <p>La API tiene una ruta raíz <code>/</code> que devuelve un JSON de estado y rutas bajo <code>/api</code>. Render usará el mismo comando de inicio.</p>
+      </section>
+
+      <section>
+        <h2>5. Crear MongoDB Atlas</h2>
+        <ol class="steps">
+          <li>Entra en MongoDB Atlas y crea una organización y un proyecto llamado, por ejemplo, <strong>TiendaWeb</strong>.</li>
+          <li>Crea un clúster compartido M0 en una región próxima a Render.</li>
+          <li>En <strong>Database Access</strong>, crea un usuario exclusivo para la aplicación.</li>
+          <li>Genera una contraseña fuerte y distinta de tu contraseña de Atlas.</li>
+          <li>En <strong>Network Access</strong>, autoriza el origen de conexión del backend. Si el proveedor utiliza IP dinámica, puede ser necesario permitir <code>0.0.0.0/0</code>; usa entonces credenciales fuertes y permisos mínimos.</li>
+          <li>En <strong>Connect &gt; Drivers</strong>, copia la cadena de conexión Node.js.</li>
+          <li>Usa <code>tiendaweb</code> como nombre de base de datos.</li>
+        </ol>
+        <pre>mongodb+srv://USUARIO:CONTRASENA@CLUSTER.mongodb.net/tiendaweb?retryWrites=true&amp;w=majority</pre>
+        <div class="notice">Si la contraseña contiene <code>@</code>, <code>#</code>, <code>:</code>, <code>/</code>, espacios u otros caracteres reservados, codifícala antes de colocarla en la URI.</div>
+        <p>El backend crea la colección <code>pedidos</code> durante la conexión si no existe. Las colecciones de artículos, clientes y empleados se crean al usarse.</p>
+      </section>
+
+      <section>
+        <h2>6. Crear Cloudinary</h2>
+        <ol class="steps">
+          <li>Crea una cuenta en Cloudinary y abre el Dashboard.</li>
+          <li>Copia <code>CLOUDINARY_URL</code> o prepara el valor con API key, API secret y cloud name.</li>
+          <li>Guarda el valor exclusivamente como variable privada en Render.</li>
+          <li>Revisa los límites de almacenamiento, transformaciones y ancho de banda.</li>
+        </ol>
+        <pre>CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME</pre>
+        <p>La ruta del backend acepta imágenes mediante <code>multipart/form-data</code>, campo <code>imagen</code>, con un máximo de 5 MB. La respuesta devuelve <code>ImagenArt</code> para guardarla en el artículo.</p>
+      </section>
+
+      <section>
+        <h2>7. Generar las credenciales del backend</h2>
+        <pre>node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+node -e "require('bcryptjs').hash(process.argv[1], 12).then(console.log)" "CAMBIA_ESTA_CONTRASENA"</pre>
+        <p>Usa el primer resultado como <code>AUTH_JWT_SECRET</code> y el segundo como <code>ADMIN_PASSWORD_HASH</code>. La contraseña original solo debe guardarse en un gestor seguro.</p>
+      </section>
+
+      <section>
+        <h2>8. Desplegar el backend en Render</h2>
+        <ol class="steps">
+          <li>En Render selecciona <strong>New + &gt; Web Service</strong>.</li>
+          <li>Conecta GitHub y selecciona el repositorio de <strong>app-TiendaWeb-backend</strong>.</li>
+          <li>Selecciona la rama <code>main</code>.</li>
+          <li>Si el backend está solo en el repositorio, deja Root Directory vacío. En un monorepo, introduce la carpeta del backend.</li>
+          <li>Selecciona Node y el plan gratuito disponible.</li>
+          <li>Configura <code>npm ci</code> como Build Command.</li>
+          <li>Configura <code>npm start</code> como Start Command.</li>
+          <li>Selecciona una región cercana a Atlas y al público objetivo.</li>
+          <li>Agrega las variables privadas antes de crear el servicio.</li>
+          <li>Inicia el deploy y revisa los logs.</li>
+        </ol>
+        <table>
+          <thead><tr><th>Configuración</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td>Runtime</td><td>Node</td></tr>
+            <tr><td>Build Command</td><td><code>npm ci</code></td></tr>
+            <tr><td>Start Command</td><td><code>npm start</code></td></tr>
+            <tr><td>Health Check Path</td><td><code>/</code></td></tr>
+            <tr><td>Auto-Deploy</td><td>Activarlo después de probar el primer despliegue</td></tr>
+          </tbody>
+        </table>
+        <p>No fijes manualmente <code>PORT</code>. Render proporciona el puerto y el servidor actual ya lee <code>process.env.PORT</code>.</p>
+      </section>
+
+      <section>
+        <h2>9. Variables de Render</h2>
+        <p>En <strong>Environment &gt; Environment Variables</strong>, crea cada variable individualmente:</p>
+        <pre>MONGO_URI=mongodb+srv://USUARIO:CONTRASENA@CLUSTER.mongodb.net/tiendaweb?retryWrites=true&amp;w=majority
+CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+AUTH_JWT_SECRET=SECRETO_ALEATORIO_DE_AL_MENOS_32_CARACTERES
+ADMIN_EMAIL=admin@tu-dominio.com
+ADMIN_PASSWORD_HASH=HASH_BCRYPT_DE_LA_CONTRASENA
+FRONTEND_ORIGINS=https://TU-PROYECTO.vercel.app</pre>
+        <p>Antes de conocer la URL definitiva de Vercel puedes dejar temporalmente el origen de desarrollo, pero actualízalo antes de la prueba final. No uses <code>*</code> como configuración permanente.</p>
+      </section>
+
+      <section>
+        <h2>10. Verificar Render y Atlas</h2>
+        <p>Cuando Render asigne una URL similar a <code>https://tiendaweb-api.onrender.com</code>, prueba:</p>
+        <pre>curl -i https://TU-SERVICIO.onrender.com/
+curl -i https://TU-SERVICIO.onrender.com/api/articulos</pre>
+        <p>La raíz debe devolver JSON indicando que la API está activa. En Render revisa que los logs indiquen conexión correcta a MongoDB.</p>
+        <h3>Errores de conexión a Atlas</h3>
+        <ul>
+          <li>Comprueba usuario y contraseña de Database Access.</li>
+          <li>Comprueba la codificación de caracteres especiales en <code>MONGO_URI</code>.</li>
+          <li>Revisa Network Access y la región del clúster.</li>
+          <li>Confirma que la variable no contiene comillas añadidas accidentalmente.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>11. Configurar CORS después de crear Vercel</h2>
+        <p>El backend compara el origen exacto del navegador con <code>FRONTEND_ORIGINS</code>. Para Vercel usa:</p>
+        <pre>FRONTEND_ORIGINS=https://TU-PROYECTO.vercel.app</pre>
+        <p>Si necesitas previews, agrega orígenes concretos separados por comas:</p>
+        <pre>FRONTEND_ORIGINS=https://TU-PROYECTO.vercel.app,https://rama-git-TU-PROYECTO.vercel.app</pre>
+        <p>No agregues la ruta de una página ni una barra final. Después de cambiar la variable, reinicia o redeploya Render.</p>
+      </section>
+
+      <section>
+        <h2>12. Desplegar el frontend en Vercel</h2>
+        <ol class="steps">
+          <li>En Vercel selecciona <strong>Add New &gt; Project</strong>.</li>
+          <li>Conecta GitHub e importa <strong>app-TiendaWeb-frontend</strong>.</li>
+          <li>Si el repositorio solo contiene frontend, deja Root Directory en la raíz. En un monorepo, selecciona la carpeta correcta.</li>
+          <li>Confirma Framework Preset <strong>Vite</strong>.</li>
+          <li>Usa <code>npm run build</code> como Build Command y <code>dist</code> como Output Directory.</li>
+          <li>En Environment Variables, crea <code>VITE_API_URL</code> con la URL HTTPS de Render.</li>
+          <li>Aplica la variable a Production y Preview según la política del equipo.</li>
+          <li>Publica y copia la URL de producción.</li>
+        </ol>
+        <pre>VITE_API_URL=https://TU-SERVICIO.onrender.com</pre>
+        <p>Fuera de GitHub Actions, Vite usa la base <code>/</code>, adecuada para Vercel. La base específica de GitHub Pages no debe utilizarse en este despliegue.</p>
+      </section>
+
+      <section>
+        <h2>13. Actualizar CORS con la URL definitiva</h2>
+        <ol class="steps">
+          <li>Copia la URL de producción de Vercel, por ejemplo <code>https://tiendaweb.vercel.app</code>.</li>
+          <li>En Render cambia <code>FRONTEND_ORIGINS</code> a esa URL exacta.</li>
+          <li>Guarda la variable y espera el redeploy.</li>
+          <li>Abre Vercel en una ventana privada y prueba el login.</li>
+        </ol>
+        <div class="notice success">El origen CORS de Vercel es <code>https://tu-proyecto.vercel.app</code>. No es <code>https://tu-proyecto.vercel.app/</code> ni incluye <code>/login</code>.</div>
+      </section>
+
+      <section>
+        <h2>14. Crear empleados iniciales</h2>
+        <p>Ejecuta el seed una sola vez cuando Render ya tenga conexión con Atlas:</p>
+        <pre>npm run seed:empleados</pre>
+        <p>Puedes ejecutarlo desde un Shell disponible en Render o desde un entorno local configurado con las mismas variables de producción. Entrega las credenciales iniciales por un canal seguro y no las publiques.</p>
+        <div class="notice warning">Antes de repetir el seed, revisa el código y la base de datos para evitar duplicados o regeneración de credenciales.</div>
+      </section>
+
+      <section>
+        <h2>15. CI/CD del stack</h2>
+        <table>
+          <thead><tr><th>Parte</th><th>Recomendación</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend</td><td>El CI existente ejecuta lint, tests y build. Vercel puede desplegar después de cada merge.</td></tr>
+            <tr><td>Backend</td><td>Conecta Render a la rama <code>main</code> y activa Auto-Deploy después de aprobar cambios.</td></tr>
+            <tr><td>Protección</td><td>Configura la rama <code>main</code> para exigir el check <strong>Validate frontend</strong>.</td></tr>
+            <tr><td>Variables</td><td>Usa variables de Render y Vercel; no las escribas en workflows ni código.</td></tr>
+          </tbody>
+        </table>
+        <p>Para un flujo más estricto, utiliza un Deploy Hook de Render desde GitHub Actions solo después de pasar la suite. Guárdalo como secreto.</p>
+        <pre>cd app-TiendaWeb-frontend
+npm ci
+npm run lint
+npm run test:ci
+npm run build</pre>
+      </section>
+
+      <section>
+        <h2>16. Pruebas de aceptación en producción</h2>
+        <ol class="steps">
+          <li>Abre la URL de Vercel en una ventana privada.</li>
+          <li>Inicia sesión como administrador.</li>
+          <li>Comprueba que Artículos carga datos desde Render.</li>
+          <li>Prueba Inventario, Pedidos y Ventas.</li>
+          <li>Sube una imagen menor de 5 MB y confirma que la URL es de Cloudinary.</li>
+          <li>Crea un artículo de prueba, edítalo y comprueba que persiste tras recargar.</li>
+          <li>Registra una venta controlada y verifica el pedido.</li>
+          <li>Prueba las sesiones de encargado y vendedor.</li>
+          <li>Comprueba el manual descargable y los enlaces públicos.</li>
+          <li>Revisa la consola del navegador y los logs de Render.</li>
+        </ol>
+        <pre>curl -i https://TU-SERVICIO.onrender.com/
+curl -i https://TU-SERVICIO.onrender.com/api/articulos</pre>
+      </section>
+
+      <section>
+        <h2>17. Diagnóstico de problemas</h2>
+        <table>
+          <thead><tr><th>Síntoma</th><th>Causa probable</th><th>Corrección</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend vacío en Vercel</td><td>Build/output o variable incorrecta.</td><td>Usa <code>npm run build</code>, output <code>dist</code> y configura <code>VITE_API_URL</code> antes del redeploy.</td></tr>
+            <tr><td>Error CORS</td><td>El dominio Vercel no está en <code>FRONTEND_ORIGINS</code>.</td><td>Agrega el origen exacto, guarda y reinicia Render.</td></tr>
+            <tr><td>Render muestra 503</td><td>El servicio está arrancando, suspendido o falló el proceso.</td><td>Espera el arranque, revisa logs y confirma <code>npm start</code>.</td></tr>
+            <tr><td>Backend no conecta a MongoDB</td><td>URI o Network Access incorrectos.</td><td>Revisa Atlas, usuario, contraseña, codificación y acceso de red.</td></tr>
+            <tr><td>Login devuelve 401</td><td>Credenciales administrativas o hash incorrectos.</td><td>Verifica <code>ADMIN_EMAIL</code>, regenera el hash y no guardes la contraseña en lugar del hash.</td></tr>
+            <tr><td>Subida de imagen falla</td><td>Cloudinary ausente, URL inválida o archivo demasiado grande.</td><td>Revisa <code>CLOUDINARY_URL</code>, el límite de 5 MB y los logs.</td></tr>
+            <tr><td>La API apunta a localhost</td><td>Vite se construyó sin <code>VITE_API_URL</code>.</td><td>Configura la variable en Vercel y ejecuta un nuevo deployment.</td></tr>
+            <tr><td>Servicio lento al primer acceso</td><td>Render despertando después de inactividad.</td><td>Espera el arranque; considera un plan permanente si necesitas respuesta inmediata.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>18. Seguridad y operación</h2>
+        <ul class="checklist">
+          <li>Rota las credenciales que hayan sido expuestas.</li>
+          <li>Usa un JWT distinto para cada entorno.</li>
+          <li>Conserva MongoDB y Cloudinary solo en Render.</li>
+          <li>Recuerda que todo <code>VITE_*</code> es público.</li>
+          <li>Restringe CORS a Vercel y previews necesarias.</li>
+          <li>No guardes imágenes en el filesystem de Render.</li>
+          <li>Revisa consumo y límites de los cuatro proveedores.</li>
+          <li>Haz respaldos de Atlas antes de borrar o migrar datos.</li>
+          <li>Protege <code>main</code> y exige CI antes de publicar.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>19. Checklist final de entrega</h2>
+        <ul class="checklist">
+          <li>Atlas M0 creado, usuario configurado y conexión permitida.</li>
+          <li>Cloudinary configurado y probado.</li>
+          <li>Render ejecuta <code>npm ci</code> y <code>npm start</code>.</li>
+          <li>Variables privadas completas en Render.</li>
+          <li>Ruta raíz del backend responde por HTTPS.</li>
+          <li><code>FRONTEND_ORIGINS</code> coincide con la URL de Vercel.</li>
+          <li>Vercel usa <code>npm run build</code>, <code>dist</code> y <code>VITE_API_URL</code>.</li>
+          <li>CI pasa lint, 14 pruebas automatizadas y build.</li>
+          <li>Login, roles, catálogo, inventario, ventas y pedidos probados.</li>
+          <li>Subida de imagen probada en Cloudinary.</li>
+          <li>Credenciales iniciales entregadas de forma segura.</li>
+          <li>Logs sin errores críticos y límites revisados.</li>
+        </ul>
+        <div class="notice success"><strong>Estado esperado:</strong> Vercel sirve la interfaz, Render responde la API, Atlas conserva los datos y Cloudinary conserva las imágenes.</div>
+      </section>
+    </main>
+
+    <footer>Manual Vercel + Render + MongoDB Atlas + Cloudinary · TiendaWeb · Revisión 1.0</footer>
+  </article>
+</body>
+</html>

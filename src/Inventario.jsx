@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import './Inventario.css'
 import { ARTICULOS_API_URL as API_URL } from './config'
-import { apiFetch } from './auth'
+import { apiFetch, readResponse } from './auth'
+import { filterInventory, getStockStatus } from './domain'
 
 function Inventario() {
   const [inventario, setInventario] = useState([])
@@ -16,8 +17,9 @@ function Inventario() {
   const fetchInventario = async () => {
     try {
       const res = await apiFetch(API_URL)
-      const data = await res.json()
-      setInventario(data)
+      if (!res.ok) throw new Error('No se pudo cargar el inventario')
+      const data = await readResponse(res)
+      setInventario(Array.isArray(data) ? data : data?.articulos || [])
     } catch (error) {
       console.error('Error al cargar inventario:', error)
     } finally {
@@ -30,10 +32,7 @@ function Inventario() {
   }, [])
 
   const getEstadoStock = (cantidad) => {
-    if (cantidad === 0) return 'sin-stock'
-    if (cantidad < 5) return 'bajo-stock'
-    if (cantidad < 10) return 'medio-stock'
-    return 'buen-stock'
+    return getStockStatus(cantidad)
   }
 
   const getEtiquetaStock = (cantidad) => {
@@ -44,18 +43,7 @@ function Inventario() {
   }
 
   const filtrarInventario = () => {
-    return inventario.filter((item) => {
-      const coincideNombre = item.Articulo.toLowerCase().includes(
-        busqueda.toLowerCase()
-      )
-
-      if (filtroStock === 'todos') return coincideNombre
-      if (filtroStock === 'sin-stock') return coincideNombre && item.stock === 0
-      if (filtroStock === 'bajo-stock') return coincideNombre && item.stock > 0 && item.stock < 5
-      if (filtroStock === 'disponible') return coincideNombre && item.stock >= 5
-
-      return coincideNombre
-    })
+    return filterInventory(inventario, busqueda, filtroStock)
   }
 
   const handleEditar = (articulo) => {

@@ -6,7 +6,8 @@ import Pedidos from './Pedidos'
 import Ventas from './Ventas'
 import Empleados from './Empleados'
 import { API_BASE_URL, ARTICULOS_API_URL } from './config'
-import { apiFetch, clearAccessToken, getAccessToken, getAuthUser, setAccessToken, setAuthUser } from './auth'
+import { apiFetch, clearAccessToken, getAccessToken, getAuthUser, readResponse, setAccessToken, setAuthUser } from './auth'
+import { canAccessManagement } from './domain'
 
 const API_URL = ARTICULOS_API_URL
 
@@ -26,20 +27,26 @@ function App() {
   const [seccionActiva, setSeccionActiva] = useState('articulos')
   const [articulos, setArticulos] = useState([])
   const [loading, setLoading] = useState(true)
+  const [catalogoError, setCatalogoError] = useState('')
   const [busqueda, setBusqueda] = useState('')
   const [editandoId, setEditandoId] = useState(null)
   const [form, setForm] = useState(initialForm)
   const [subiendoImagen, setSubiendoImagen] = useState(false)
-  const canAccessClientes = ['admin', 'encargado'].includes(user?.role)
-  const canAccessEmpleados = ['admin', 'encargado'].includes(user?.role)
+  const canAccessClientes = canAccessManagement(user?.role)
+  const canAccessEmpleados = canAccessManagement(user?.role)
+  const isEncargado = user?.role === 'encargado'
 
   const fetchArticulos = async () => {
+    setLoading(true)
+    setCatalogoError('')
     try {
       const res = await apiFetch(API_URL)
-      const data = await res.json()
-      setArticulos(data)
+      if (!res.ok) throw new Error('No se pudo cargar el catálogo')
+      const data = await readResponse(res)
+      setArticulos(Array.isArray(data) ? data : data?.articulos || [])
     } catch (error) {
       console.error('Error al cargar artículos:', error)
+      setCatalogoError('No se pudo cargar el catálogo. Comprueba la conexión con el servidor.')
     } finally {
       setLoading(false)
     }
@@ -59,6 +66,11 @@ function App() {
     return () => window.removeEventListener('auth-expired', handleAuthExpired)
   }, [])
 
+  useEffect(() => {
+    if (seccionActiva === 'clientes' && !canAccessClientes) setSeccionActiva('articulos')
+    if (seccionActiva === 'empleados' && !canAccessEmpleados) setSeccionActiva('articulos')
+  }, [canAccessClientes, canAccessEmpleados, seccionActiva])
+
   const handleLogin = async (event) => {
     event.preventDefault()
     setLoginError('')
@@ -70,8 +82,9 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginForm),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'No se pudo iniciar sesión')
+      const data = await readResponse(res)
+      if (!res.ok) throw new Error(data?.message || 'No se pudo iniciar sesión')
+      if (!data?.token || !data?.user) throw new Error('La respuesta de inicio de sesión no es válida')
       setAccessToken(data.token)
       setAuthUser(data.user)
       setUser(data.user)
@@ -103,6 +116,34 @@ function App() {
           <button className="primary-btn" type="submit" disabled={loggingIn}>
             {loggingIn ? 'Validando...' : 'Entrar'}
           </button>
+          <a
+            className="deployment-manual-link"
+            href="./manual-despliegue-desarrollador.html"
+            download="manual-despliegue-desarrollador.html"
+          >
+            Descargar manual de despliegue para desarrolladores
+          </a>
+          <a
+            className="deployment-manual-link"
+            href="./manual-despliegue-vercel-heroku.html"
+            download="manual-despliegue-vercel-heroku.html"
+          >
+            Descargar manual Vercel + Heroku
+          </a>
+          <a
+            className="deployment-manual-link"
+            href="./manual-despliegue-render-atlas-cloudinary.html"
+            download="manual-despliegue-render-atlas-cloudinary.html"
+          >
+            Descargar manual Render + Atlas + Cloudinary
+          </a>
+          <a
+            className="deployment-manual-link"
+            href="./manual-despliegue-vercel-render-atlas-cloudinary.html"
+            download="manual-despliegue-vercel-render-atlas-cloudinary.html"
+          >
+            Descargar manual completo del stack recomendado
+          </a>
         </form>
       </main>
     )
@@ -128,14 +169,14 @@ function App() {
         method: 'POST',
         body: datos,
       })
-      const data = await res.json()
+      const data = await readResponse(res)
 
       if (!res.ok) {
-        alert(data.message || 'No se pudo subir la imagen')
+        alert(data?.message || 'No se pudo subir la imagen')
         return
       }
 
-      setForm((prev) => ({ ...prev, ImagenArt: data.ImagenArt }))
+      setForm((prev) => ({ ...prev, ImagenArt: data?.ImagenArt || '' }))
     } catch (error) {
       console.error('Error al subir imagen:', error)
       alert('No se pudo conectar con el servidor para subir la imagen')
@@ -160,10 +201,10 @@ function App() {
         body: JSON.stringify(form),
       })
 
-      const data = await res.json()
+      const data = await readResponse(res)
 
       if (!res.ok) {
-        alert(data.message || 'Error al guardar')
+        alert(data?.message || 'Error al guardar')
         return
       }
 
@@ -186,15 +227,17 @@ function App() {
   }
 
   const handleDelete = async (id) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este artículo?')) return
+
     try {
       const res = await apiFetch(`${API_URL}/${id}`, {
         method: 'DELETE',
       })
 
-      const data = await res.json()
+      const data = await readResponse(res)
 
       if (!res.ok) {
-        alert(data.message || 'Error al eliminar')
+        alert(data?.message || 'Error al eliminar')
         return
       }
 
@@ -210,7 +253,7 @@ function App() {
   }
 
   const articulosFiltrados = articulos.filter((articulo) =>
-    articulo.Articulo.toLowerCase().includes(busqueda.toLowerCase())
+    (articulo.Articulo || '').toLowerCase().includes(busqueda.toLowerCase())
   )
 
   return (
@@ -266,6 +309,15 @@ function App() {
             </button>
           )}
         </nav>
+        {isEncargado && (
+          <a
+            className="manual-link"
+            href="./manual-usuario-encargado.html"
+            download="manual-usuario-encargado.html"
+          >
+            Descargar manual de encargado
+          </a>
+        )}
         <p className="user-role">Sesión: {user?.role || 'admin'}</p>
         <button className="nav-item logout-btn" onClick={handleLogout}>Cerrar sesión</button>
       </aside>
@@ -376,13 +428,19 @@ function App() {
 
               {loading ? (
                 <p>Cargando artículos...</p>
+              ) : catalogoError ? (
+                <p className="empty-state" role="alert">{catalogoError}</p>
               ) : articulosFiltrados.length === 0 ? (
                 <p className="empty-state">No hay artículos registrados.</p>
               ) : (
                 <div className="articulos-grid">
                   {articulosFiltrados.map((articulo) => (
                     <article key={articulo._id} className="articulo-card">
-                      <img src={articulo.ImagenArt} alt={articulo.Articulo} />
+                      {articulo.ImagenArt ? (
+                        <img src={articulo.ImagenArt} alt={articulo.Articulo || 'Artículo'} />
+                      ) : (
+                        <div className="articulo-image-placeholder" aria-hidden="true">Sin imagen</div>
+                      )}
                       <div className="card-body">
                         <h4>{articulo.Articulo}</h4>
                         <p>{articulo.Detalles}</p>

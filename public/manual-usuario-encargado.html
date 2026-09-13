@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manual de usuario para encargados de TiendaWeb">
+  <title>Manual de usuario para encargados | TiendaWeb</title>
+  <style>
+    :root { color: #1d2939; background: #f4f7fb; font-family: Georgia, 'Times New Roman', serif; line-height: 1.65; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .page { width: min(100% - 32px, 920px); margin: 32px auto; background: #fff; box-shadow: 0 16px 40px rgba(30, 41, 59, .1); }
+    header { padding: 56px 64px 44px; color: #fff; background: #172033; }
+    .kicker { margin: 0 0 12px; color: #a5b4fc; font: 700 12px/1.2 Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { max-width: 680px; margin: 0; font-size: clamp(2.1rem, 5vw, 3.8rem); }
+    .subtitle { max-width: 660px; margin: 18px 0 0; color: #d8dee9; font-size: 1.1rem; }
+    main { padding: 42px 64px 64px; }
+    h2 { margin: 40px 0 14px; color: #172033; font-size: 1.75rem; }
+    h2:first-child { margin-top: 0; }
+    h3 { margin: 26px 0 8px; color: #334155; font-size: 1.2rem; }
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 24px; }
+    li { margin: 7px 0; }
+    .notice { margin: 22px 0; padding: 16px 18px; border-left: 4px solid #6475e8; background: #eef2ff; }
+    .warning { border-left-color: #d97706; background: #fff7ed; }
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+    .steps li::before { content: counter(step); display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; color: #fff; background: #4f46e5; font: 700 14px Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: .96rem; }
+    th, td { padding: 11px 12px; border: 1px solid #dbe3ef; text-align: left; vertical-align: top; }
+    th { color: #172033; background: #eef2f7; }
+    footer { padding: 22px 64px; color: #64748b; border-top: 1px solid #e2e8f0; font: .85rem Arial, sans-serif; }
+    @media print {
+      :root { background: #fff; }
+      .page { width: 100%; margin: 0; box-shadow: none; }
+      header { color: #000; background: #fff; border-bottom: 2px solid #172033; }
+      .kicker, .subtitle { color: #334155; }
+      main { padding: 28px 0; }
+      footer { padding: 22px 0; }
+      h2, h3 { break-after: avoid; }
+      table, .notice { break-inside: avoid; }
+    }
+    @media (max-width: 640px) {
+      .page { width: 100%; margin: 0; }
+      header, main, footer { padding-left: 24px; padding-right: 24px; }
+      table { display: block; overflow-x: auto; white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <article class="page">
+    <header>
+      <p class="kicker">TiendaWeb · Documento de supervisión</p>
+      <h1>Manual de usuario para encargados</h1>
+      <p class="subtitle">Guía para coordinar la operación diaria, supervisar el inventario, validar ventas y administrar la información del equipo.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>1. Responsabilidades del encargado</h2>
+        <p>El encargado supervisa la operación diaria de la tienda y ayuda a mantener actualizada la información que utilizan vendedores y administradores.</p>
+        <ul>
+          <li>Verificar que el catálogo y los precios estén actualizados.</li>
+          <li>Controlar existencias y detectar productos sin stock o con stock bajo.</li>
+          <li>Revisar pedidos pendientes y confirmar sus entregas.</li>
+          <li>Supervisar el registro correcto de ventas y datos de clientes.</li>
+          <li>Gestionar altas, modificaciones y bajas del personal cuando corresponda.</li>
+        </ul>
+        <div class="notice"><strong>Seguridad:</strong> el rol de encargado permite gestionar información operativa y de personal. No compartas tu sesión ni tus credenciales.</div>
+      </section>
+
+      <section>
+        <h2>2. Acceso y navegación</h2>
+        <ol class="steps">
+          <li>Abre TiendaWeb e introduce el correo y la contraseña asignados.</li>
+          <li>Comprueba que la sesión muestre <strong>encargado</strong> en la barra lateral.</li>
+          <li>Utiliza los módulos de Artículos, Inventario, Pedidos, Ventas, Clientes y Empleados.</li>
+          <li>Descarga este manual desde <strong>Descargar manual de encargado</strong> cuando necesites consultarlo.</li>
+        </ol>
+        <table>
+          <thead><tr><th>Módulo</th><th>Objetivo de supervisión</th></tr></thead>
+          <tbody>
+            <tr><td>Artículos</td><td>Mantener nombres, imágenes, detalles y precios correctos.</td></tr>
+            <tr><td>Inventario</td><td>Detectar faltantes y actualizar cantidades y precios.</td></tr>
+            <tr><td>Pedidos</td><td>Dar seguimiento a pedidos pendientes y entregados.</td></tr>
+            <tr><td>Ventas</td><td>Registrar operaciones y validar el total antes de confirmar.</td></tr>
+            <tr><td>Clientes</td><td>Conservar datos completos y estados correctos.</td></tr>
+            <tr><td>Empleados</td><td>Administrar el acceso operativo del equipo.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>3. Control del catálogo</h2>
+        <h3>Alta y edición</h3>
+        <ol class="steps">
+          <li>Entra en <strong>Artículos</strong> y selecciona <strong>Nuevo artículo</strong> para crear un producto.</li>
+          <li>Completa nombre, imagen, precio y detalles antes de guardar.</li>
+          <li>Usa <strong>Editar</strong> para corregir información existente.</li>
+          <li>Busca por nombre y revisa el contador de artículos para confirmar el resultado.</li>
+        </ol>
+        <div class="notice warning"><strong>Antes de eliminar:</strong> confirma que el producto no tenga una operación pendiente o una venta que deba conservarse en el historial.</div>
+      </section>
+
+      <section>
+        <h2>4. Supervisión del inventario</h2>
+        <p>Revisa Inventario al inicio y al final de la jornada o cuando se reciba mercancía.</p>
+        <ul>
+          <li>Filtra por <strong>Sin stock</strong> para localizar productos que no se pueden vender.</li>
+          <li>Filtra por <strong>Bajo stock</strong> y <strong>Stock medio</strong> para anticipar reposiciones.</li>
+          <li>Ajusta cantidades con <strong>+</strong> o <strong>-</strong> para cambios unitarios.</li>
+          <li>Usa la edición detallada cuando debas actualizar cantidad y precio a la vez.</li>
+          <li>Pulsa <strong>Actualizar</strong> después de una recepción o ajuste realizado por otra persona.</li>
+        </ul>
+        <p>Si una cantidad no coincide con el conteo físico, realiza una verificación antes de modificarla y comunica la diferencia al administrador.</p>
+      </section>
+
+      <section>
+        <h2>5. Ventas y pedidos</h2>
+        <h3>Validar una venta</h3>
+        <ol class="steps">
+          <li>Busca el artículo en <strong>Ventas</strong> y verifica existencias y precio.</li>
+          <li>Añade los productos al carrito y comprueba cantidades y total.</li>
+          <li>Completa nombre y correo del cliente.</li>
+          <li>Selecciona <strong>Pendiente</strong> si la entrega aún no está confirmada o <strong>Entregado</strong> si ya se completó.</li>
+          <li>Confirma la venta una sola vez y conserva el número de pedido mostrado.</li>
+        </ol>
+        <h3>Dar seguimiento</h3>
+        <p>En <strong>Pedidos</strong>, filtra por estado y revisa cada pendiente. Cambia a <strong>Entregado</strong> solo después de confirmar la entrega. Si necesitas corregirlo, usa la acción para volver a <strong>Pendiente</strong>.</p>
+      </section>
+
+      <section>
+        <h2>6. Gestión de clientes</h2>
+        <p>En <strong>Clientes</strong> puedes registrar y mantener la información de contacto necesaria para las ventas.</p>
+        <ul>
+          <li>Comprueba nombre, apellido, documento, correo y teléfono antes de guardar.</li>
+          <li>Usa el buscador por nombre, correo, teléfono o documento.</li>
+          <li>Marca como inactivo a un cliente que ya no deba operar, en lugar de eliminarlo sin revisión.</li>
+          <li>Antes de eliminar, confirma que no sea necesario conservar la información para una gestión pendiente.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>7. Gestión de empleados</h2>
+        <h3>Registrar o modificar personal</h3>
+        <ol class="steps">
+          <li>Abre <strong>Empleados</strong> y selecciona <strong>Nuevo empleado</strong>.</li>
+          <li>Completa los datos personales, correo, teléfono, categoría y contraseña.</li>
+          <li>Asigna <strong>Vendedor</strong> para la operación diaria o <strong>Encargado</strong> para funciones de supervisión.</li>
+          <li>Para modificar datos, pulsa <strong>Modificar</strong> y guarda los cambios.</li>
+          <li>Al editar, deja la contraseña vacía si no deseas cambiarla.</li>
+        </ol>
+        <div class="notice warning"><strong>Control de acceso:</strong> asigna el rol de encargado solo a personal autorizado. Una cuenta de encargado puede gestionar clientes y empleados.</div>
+        <h3>Dar de baja</h3>
+        <p>Usa <strong>Dar de baja</strong> cuando un empleado ya no deba tener acceso. Confirma la identidad y la autorización antes de realizar la acción.</p>
+      </section>
+
+      <section>
+        <h2>8. Rutina recomendada</h2>
+        <table>
+          <thead><tr><th>Momento</th><th>Revisión</th></tr></thead>
+          <tbody>
+            <tr><td>Inicio de jornada</td><td>Revisar pedidos pendientes, productos sin stock y novedades del equipo.</td></tr>
+            <tr><td>Durante la jornada</td><td>Validar ventas, cantidades del carrito y datos de clientes.</td></tr>
+            <tr><td>Recepción de mercancía</td><td>Actualizar inventario y comprobar que los precios correspondan al catálogo.</td></tr>
+            <tr><td>Cierre de jornada</td><td>Revisar pedidos entregados, ventas registradas y cerrar sesión.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>9. Problemas frecuentes</h2>
+        <table>
+          <thead><tr><th>Situación</th><th>Acción recomendada</th></tr></thead>
+          <tbody>
+            <tr><td>El enlace del manual no aparece</td><td>Comprueba que la sesión tenga el rol exacto <code>encargado</code>. Si no, solicita al administrador que revise tu cuenta.</td></tr>
+            <tr><td>La sesión ha caducado</td><td>Inicia sesión nuevamente. No continúes operaciones con datos desactualizados.</td></tr>
+            <tr><td>El inventario no coincide</td><td>Actualiza la vista, repite el conteo físico y comunica la diferencia antes de ajustarla.</td></tr>
+            <tr><td>No puedo gestionar empleados</td><td>Verifica que tu sesión sea de encargado y que el backend acepte tus permisos.</td></tr>
+            <tr><td>Una operación devuelve un error</td><td>Anota el módulo, la acción, el mensaje y la hora. No repitas una venta o eliminación varias veces.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>10. Buenas prácticas</h2>
+        <ul>
+          <li>Revisa los datos antes de guardar cambios permanentes.</li>
+          <li>Confirma las entregas con información verificable.</li>
+          <li>No compartas contraseñas ni uses cuentas de otros empleados.</li>
+          <li>Evita dejar sesiones abiertas en equipos compartidos.</li>
+          <li>Escala al administrador los errores de permisos, inventario o datos duplicados.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>Manual de usuario para encargados · TiendaWeb · Revisión 1.0</footer>
+  </article>
+</body>
+</html>

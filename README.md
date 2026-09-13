@@ -1,4 +1,48 @@
-# React + Vite
+# TiendaWeb frontend
+
+Panel administrativo construido con React y Vite para gestionar artículos, inventario, pedidos, ventas, clientes y empleados.
+
+## Requisitos
+
+- Node.js 20 o superior
+- Un backend de TiendaWeb accesible desde el navegador
+
+## Desarrollo local
+
+```bash
+npm install
+copy .env.example .env
+npm run dev
+```
+
+Configura `VITE_API_URL` con la URL pública del backend. Las variables `VITE_*` se incorporan al bundle del navegador, por lo que nunca deben contener secretos.
+
+## Comprobaciones de producción
+
+```bash
+npm run lint
+npm run test:ci
+npm run build
+npm run preview
+```
+
+La suite de pruebas simuladas cubre permisos por rol, filtros de inventario, estados de pedidos, carrito de ventas, payloads de venta y respuestas HTTP/autenticación. Para trabajar en modo interactivo usa `npm test`.
+
+## CI/CD en GitHub
+
+El workflow de `.github/workflows/ci.yml` ejecuta automáticamente lint, pruebas y build en cada push a `main` o `develop`, y en cada pull request.
+
+El workflow de `.github/workflows/deploy.yml` ejecuta las mismas comprobaciones y publica automáticamente `dist` en GitHub Pages al hacer push a `main`. En la configuración del repositorio, selecciona **Settings > Pages > Source: GitHub Actions**.
+
+Antes del primer despliegue, crea la variable de repositorio `VITE_API_URL` con la URL HTTPS del backend. GitHub Actions la inyecta durante el build.
+
+El manual técnico completo está disponible en [manual-despliegue-desarrollador.html](public/manual-despliegue-desarrollador.html) y también puede descargarse desde la pantalla de inicio de sesión.
+
+La guía específica para desplegar el frontend en Vercel y el backend en Heroku está en [manual-despliegue-vercel-heroku.html](public/manual-despliegue-vercel-heroku.html).
+
+La guía recomendada para desplegar la API en Render, la base de datos en MongoDB Atlas y las imágenes en Cloudinary está en [manual-despliegue-render-atlas-cloudinary.html](public/manual-despliegue-render-atlas-cloudinary.html).
+
+La guía unificada del stack completo Vercel + Render + MongoDB Atlas + Cloudinary está en [manual-despliegue-vercel-render-atlas-cloudinary.html](public/manual-despliegue-vercel-render-atlas-cloudinary.html).
 
 ## Configuración local
 

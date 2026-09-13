@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import './Pedidos.css'
 import { PEDIDOS_API_URL as API_URL } from './config'
-import { apiFetch } from './auth'
+import { apiFetch, readResponse } from './auth'
+import { filterOrders, getOrderItems, getOrderStatus, getOrderTotal } from './domain'
 
 const estados = ['todos', 'pendiente', 'entregado']
 
@@ -15,15 +16,9 @@ const obtenerCliente = (pedido) => {
   return pedido.nombreCliente || pedido.email || 'Cliente sin nombre'
 }
 
-const obtenerTotal = (pedido) => Number(pedido.total || pedido.totalPedido || 0)
-
-const obtenerItems = (pedido) => Array.isArray(pedido.items) ? pedido.items : []
-
-const obtenerEstadoPedido = (pedido) => {
-  const items = obtenerItems(pedido)
-  if (items.length > 0 && items.every((item) => item.estado === 'entregado')) return 'entregado'
-  return 'pendiente'
-}
+const obtenerTotal = getOrderTotal
+const obtenerItems = getOrderItems
+const obtenerEstadoPedido = getOrderStatus
 
 function Pedidos() {
   const [pedidos, setPedidos] = useState([])
@@ -38,7 +33,7 @@ function Pedidos() {
     try {
       const res = await apiFetch(API_URL)
       if (!res.ok) throw new Error('No se pudieron cargar los pedidos')
-      const data = await res.json()
+      const data = await readResponse(res)
       setPedidos(Array.isArray(data) ? data : data.pedidos || [])
     } catch (requestError) {
       console.error('Error al cargar pedidos:', requestError)
@@ -64,8 +59,8 @@ function Pedidos() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ estado: nuevoEstado }),
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.message || 'No se pudo actualizar el estado')
+      const data = await readResponse(res)
+      if (!res.ok) throw new Error(data?.message || 'No se pudo actualizar el estado')
       setPedidos((actual) => actual.map((item) => item._id === data._id ? data : item))
     } catch (requestError) {
       console.error('Error al actualizar estado del pedido:', requestError)
@@ -75,14 +70,7 @@ function Pedidos() {
     }
   }
 
-  const pedidosFiltrados = pedidos.filter((pedido) => {
-    const textoBusqueda = busqueda.toLowerCase()
-    const coincideBusqueda = `${obtenerNumero(pedido)} ${obtenerCliente(pedido)}`
-      .toLowerCase()
-      .includes(textoBusqueda)
-    const coincideEstado = filtroEstado === 'todos' || obtenerEstadoPedido(pedido) === filtroEstado
-    return coincideBusqueda && coincideEstado
-  })
+  const pedidosFiltrados = filterOrders(pedidos, busqueda, filtroEstado)
 
   const totalVentas = pedidos.reduce((total, pedido) => total + obtenerTotal(pedido), 0)
   const pedidosPendientes = pedidos.filter((pedido) => obtenerEstadoPedido(pedido) === 'pendiente').length

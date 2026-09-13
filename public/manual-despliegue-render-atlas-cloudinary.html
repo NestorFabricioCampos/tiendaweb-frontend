@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manual completo para desplegar TiendaWeb en Render, MongoDB Atlas y Cloudinary">
+  <title>Manual Render + MongoDB Atlas + Cloudinary | TiendaWeb</title>
+  <style>
+    :root { color: #1d2939; background: #f4f7fb; font-family: Georgia, 'Times New Roman', serif; line-height: 1.65; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .page { width: min(100% - 32px, 980px); margin: 32px auto; background: #fff; box-shadow: 0 16px 40px rgba(30, 41, 59, .1); }
+    header { padding: 56px 64px 44px; color: #fff; background: #172033; }
+    .kicker { margin: 0 0 12px; color: #a5b4fc; font: 700 12px/1.2 Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { max-width: 780px; margin: 0; font-size: clamp(2.1rem, 5vw, 3.8rem); }
+    .subtitle { max-width: 780px; margin: 18px 0 0; color: #d8dee9; font-size: 1.1rem; }
+    main { padding: 42px 64px 64px; }
+    h2 { margin: 42px 0 14px; color: #172033; font-size: 1.8rem; }
+    h2:first-child { margin-top: 0; }
+    h3 { margin: 28px 0 8px; color: #334155; font-size: 1.2rem; }
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 24px; }
+    li { margin: 7px 0; }
+    .notice { margin: 22px 0; padding: 16px 18px; border-left: 4px solid #6475e8; background: #eef2ff; }
+    .warning { border-left-color: #dc2626; background: #fef2f2; }
+    .success { border-left-color: #059669; background: #ecfdf5; }
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+    .steps li::before { content: counter(step); display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; color: #fff; background: #4f46e5; font: 700 14px Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: .94rem; }
+    th, td { padding: 11px 12px; border: 1px solid #dbe3ef; text-align: left; vertical-align: top; }
+    th { color: #172033; background: #eef2f7; }
+    code { padding: 2px 5px; border-radius: 4px; background: #eef2f7; font-family: Consolas, monospace; font-size: .92em; }
+    pre { overflow-x: auto; margin: 14px 0; padding: 16px; border-radius: 7px; color: #e2e8f0; background: #111827; font: .88rem/1.55 Consolas, 'Courier New', monospace; }
+    .checklist { list-style: none; padding-left: 0; }
+    .checklist li::before { content: '\2610'; margin-right: 8px; color: #4f46e5; font-size: 1.1rem; }
+    footer { padding: 22px 64px; color: #64748b; border-top: 1px solid #e2e8f0; font: .85rem Arial, sans-serif; }
+    @media print {
+      :root { background: #fff; }
+      .page { width: 100%; margin: 0; box-shadow: none; }
+      header { color: #000; background: #fff; border-bottom: 2px solid #172033; }
+      .kicker, .subtitle { color: #334155; }
+      main { padding: 28px 0; }
+      footer { padding: 22px 0; }
+      h2, h3 { break-after: avoid; }
+      table, .notice, pre { break-inside: avoid; }
+    }
+    @media (max-width: 640px) {
+      .page { width: 100%; margin: 0; }
+      header, main, footer { padding-left: 24px; padding-right: 24px; }
+      table { display: block; overflow-x: auto; white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <article class="page">
+    <header>
+      <p class="kicker">TiendaWeb · Manual técnico · Revisión 1.0</p>
+      <h1>Despliegue con Render, MongoDB Atlas y Cloudinary</h1>
+      <p class="subtitle">Guía completa para publicar la API de TiendaWeb, conectar la base de datos y habilitar la carga permanente de imágenes desde el panel administrativo.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>1. Arquitectura recomendada</h2>
+        <table>
+          <thead><tr><th>Componente</th><th>Servicio</th><th>Responsabilidad</th></tr></thead>
+          <tbody>
+            <tr><td>Frontend</td><td>GitHub Pages, Vercel o Netlify</td><td>Sirve la aplicación React/Vite en el navegador.</td></tr>
+            <tr><td>Backend</td><td>Render Web Service</td><td>Ejecuta Node.js, Express, autenticación y endpoints de la API.</td></tr>
+            <tr><td>Base de datos</td><td>MongoDB Atlas M0</td><td>Almacena artículos, clientes, pedidos y empleados.</td></tr>
+            <tr><td>Archivos de imagen</td><td>Cloudinary Free</td><td>Almacena imágenes fuera del filesystem efímero del servidor.</td></tr>
+          </tbody>
+        </table>
+        <p>El frontend usa una URL pública del backend mediante <code>VITE_API_URL</code>. Render se conecta a Atlas con <code>MONGO_URI</code> y a Cloudinary mediante <code>CLOUDINARY_URL</code>.</p>
+        <div class="notice warning"><strong>Planes gratuitos:</strong> Render, Atlas y Cloudinary tienen límites que pueden cambiar. El servicio gratuito de Render puede suspenderse después de inactividad y tardar unos segundos en reactivarse.</div>
+      </section>
+
+      <section>
+        <h2>2. Requisitos previos</h2>
+        <ul class="checklist">
+          <li>Cuenta de GitHub con el repositorio de <strong>app-TiendaWeb-backend</strong>.</li>
+          <li>Cuenta de Render, MongoDB Atlas y Cloudinary.</li>
+          <li>Node.js 20 o superior y npm para las pruebas locales.</li>
+          <li>Un dominio o URL pública del frontend para configurar CORS.</li>
+          <li>Una contraseña administrativa segura.</li>
+        </ul>
+        <pre>node --version
+npm --version
+git --version</pre>
+        <div class="notice warning"><strong>Regla de secretos:</strong> no subas <code>.env</code>, <code>MONGO_URI</code>, <code>CLOUDINARY_URL</code>, JWT, contraseñas ni hashes a GitHub. Configúralos en Render.</div>
+      </section>
+
+      <section>
+        <h2>3. Preparar el backend local</h2>
+        <p>El backend actual tiene estos scripts relevantes:</p>
+        <table>
+          <thead><tr><th>Script</th><th>Uso</th></tr></thead>
+          <tbody>
+            <tr><td><code>npm start</code></td><td>Arranca <code>src/server.js</code> en producción.</td></tr>
+            <tr><td><code>npm run dev</code></td><td>Desarrollo local con nodemon.</td></tr>
+            <tr><td><code>npm run seed:empleados</code></td><td>Crea los empleados iniciales en la base configurada.</td></tr>
+          </tbody>
+        </table>
+        <pre>cd app-TiendaWeb-backend
+npm ci
+npm start</pre>
+        <p>El servidor expone la ruta raíz <code>/</code> y las rutas bajo <code>/api</code>. Render debe ejecutar el mismo comando <code>npm start</code>.</p>
+      </section>
+
+      <section>
+        <h2>4. Crear MongoDB Atlas</h2>
+        <ol class="steps">
+          <li>Entra en MongoDB Atlas y crea una organización y un proyecto, por ejemplo <strong>TiendaWeb</strong>.</li>
+          <li>Crea un clúster compartido M0 en una región próxima a Render.</li>
+          <li>En <strong>Database Access</strong>, crea un usuario exclusivo para la aplicación.</li>
+          <li>Usa una contraseña larga, aleatoria y distinta de la cuenta de Atlas.</li>
+          <li>En <strong>Network Access</strong>, agrega el origen de conexión del backend. Si Render usa IP dinámica, puede requerirse <code>0.0.0.0/0</code>; compénsalo con credenciales fuertes y permisos mínimos.</li>
+          <li>Abre <strong>Connect &gt; Drivers</strong> y copia la cadena para Node.js.</li>
+          <li>Reemplaza los placeholders y usa una base llamada <code>tiendaweb</code>.</li>
+        </ol>
+        <pre>mongodb+srv://USUARIO:CONTRASENA@CLUSTER.mongodb.net/tiendaweb?retryWrites=true&amp;w=majority</pre>
+        <div class="notice"><strong>Contraseñas con caracteres especiales:</strong> codifica caracteres como <code>@</code>, <code>#</code>, <code>:</code>, <code>/</code> o espacios dentro de la URL de MongoDB. Usa un generador URL-safe o el equivalente de <code>encodeURIComponent</code>.</div>
+        <p>Atlas crea las colecciones al insertar datos. El backend también comprueba y crea la colección <code>pedidos</code> durante el arranque.</p>
+      </section>
+
+      <section>
+        <h2>5. Crear y configurar Cloudinary</h2>
+        <ol class="steps">
+          <li>Regístrate en Cloudinary y abre el Dashboard.</li>
+          <li>Copia la variable <code>CLOUDINARY_URL</code> o construye el valor con API key, API secret y cloud name.</li>
+          <li>No pongas ese valor en el frontend ni en variables <code>VITE_*</code>.</li>
+          <li>Comprueba el límite máximo de 5 MB usado por la ruta de subida del backend.</li>
+          <li>Revisa periódicamente almacenamiento, transformaciones y ancho de banda.</li>
+        </ol>
+        <pre>CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME</pre>
+        <p>El backend recibe el archivo en el campo multipart <code>imagen</code>, lo sube a Cloudinary y devuelve una URL pública para guardar en <code>ImagenArt</code>.</p>
+      </section>
+
+      <section>
+        <h2>6. Generar credenciales seguras</h2>
+        <p>Ejecuta estos comandos desde un entorno local con las dependencias del backend instaladas:</p>
+        <pre>node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+node -e "require('bcryptjs').hash(process.argv[1], 12).then(console.log)" "CAMBIA_ESTA_CONTRASENA"</pre>
+        <p>Usa el primer resultado como <code>AUTH_JWT_SECRET</code> y el segundo como <code>ADMIN_PASSWORD_HASH</code>. Guarda la contraseña original en un gestor de contraseñas.</p>
+        <div class="notice warning">Si alguna credencial real apareció en un commit, documento o terminal compartida, rótala. Eliminarla del archivo actual no la elimina del historial de Git.</div>
+      </section>
+
+      <section>
+        <h2>7. Crear el Web Service en Render</h2>
+        <ol class="steps">
+          <li>Abre Render y selecciona <strong>New + &gt; Web Service</strong>.</li>
+          <li>Conecta GitHub y autoriza el repositorio de <strong>app-TiendaWeb-backend</strong>.</li>
+          <li>Selecciona la rama <code>main</code>.</li>
+          <li>Si el backend es un repositorio independiente, deja el Root Directory vacío. Si es un monorepo, escribe la carpeta del backend.</li>
+          <li>Selecciona el runtime Node y el plan gratuito disponible.</li>
+          <li>Configura <code>npm ci</code> como Build Command.</li>
+          <li>Configura <code>npm start</code> como Start Command.</li>
+          <li>Elige una región cercana a MongoDB Atlas y al público principal.</li>
+          <li>Agrega las variables de entorno antes del primer deploy.</li>
+          <li>Pulsa <strong>Create Web Service</strong> y espera a que termine el build.</li>
+        </ol>
+        <h3>Valores recomendados</h3>
+        <table>
+          <thead><tr><th>Campo Render</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td>Runtime</td><td>Node</td></tr>
+            <tr><td>Build Command</td><td><code>npm ci</code></td></tr>
+            <tr><td>Start Command</td><td><code>npm start</code></td></tr>
+            <tr><td>Health Check Path</td><td><code>/</code></td></tr>
+            <tr><td>Auto-Deploy</td><td>After CI passes, si el flujo del equipo lo permite</td></tr>
+          </tbody>
+        </table>
+        <p>No fijes un puerto estático. Render proporciona <code>PORT</code> y el servidor del proyecto ya lo lee; el valor local de ejemplo no debe trasladarse obligatoriamente a producción.</p>
+      </section>
+
+      <section>
+        <h2>8. Variables de entorno de Render</h2>
+        <p>En <strong>Environment &gt; Environment Variables</strong>, crea cada variable de forma individual:</p>
+        <pre>MONGO_URI=mongodb+srv://USUARIO:CONTRASENA@CLUSTER.mongodb.net/tiendaweb?retryWrites=true&amp;w=majority
+CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+AUTH_JWT_SECRET=SECRETO_ALEATORIO_DE_AL_MENOS_32_CARACTERES
+ADMIN_EMAIL=admin@tu-dominio.com
+ADMIN_PASSWORD_HASH=HASH_BCRYPT_DE_LA_CONTRASENA
+FRONTEND_ORIGINS=https://TU-FRONTEND.example.com</pre>
+        <p><code>FRONTEND_ORIGINS</code> puede contener varios orígenes separados por comas:</p>
+        <pre>FRONTEND_ORIGINS=https://tu-sitio.vercel.app,https://USUARIO.github.io</pre>
+        <p>No incluyas barra final, rutas internas ni espacios innecesarios. No configures <code>PORT</code> salvo que Render lo indique expresamente.</p>
+      </section>
+
+      <section>
+        <h2>9. Verificar el backend publicado</h2>
+        <p>Render asignará una URL similar a <code>https://tiendaweb-api.onrender.com</code>. Comprueba primero la ruta raíz:</p>
+        <pre>curl -i https://TU-SERVICIO.onrender.com/
+curl -i https://TU-SERVICIO.onrender.com/api/articulos</pre>
+        <p>La primera respuesta debe ser JSON con el mensaje de API activa. Si el servicio tarda después de inactividad, espera el arranque y repite la llamada.</p>
+        <h3>Consultar logs</h3>
+        <p>En Render abre el servicio y revisa <strong>Logs</strong>. Debes ver conexión correcta a MongoDB y el servidor escuchando en el puerto asignado. Nunca publiques los logs si contienen secretos.</p>
+      </section>
+
+      <section>
+        <h2>10. Configurar CORS</h2>
+        <p>El backend valida el origen mediante <code>FRONTEND_ORIGINS</code>. Usa el origen exacto del frontend, no la URL del backend.</p>
+        <table>
+          <thead><tr><th>Frontend</th><th>Valor CORS</th></tr></thead>
+          <tbody>
+            <tr><td>Vercel</td><td><code>https://tu-proyecto.vercel.app</code></td></tr>
+            <tr><td>GitHub Pages de usuario</td><td><code>https://usuario.github.io</code></td></tr>
+            <tr><td>Desarrollo Vite</td><td><code>http://localhost:5173,http://localhost:4173</code></td></tr>
+          </tbody>
+        </table>
+        <p>Si GitHub Pages usa una ruta de proyecto como <code>/tiendaweb-frontend/</code>, CORS sigue usando solo el origen <code>https://usuario.github.io</code>. Después de editar la variable, reinicia el servicio en Render.</p>
+      </section>
+
+      <section>
+        <h2>11. Configurar el frontend</h2>
+        <ol class="steps">
+          <li>Obtén la URL HTTPS pública de Render.</li>
+          <li>En el repositorio frontend, configura la variable <code>VITE_API_URL</code> en el proveedor de frontend.</li>
+          <li>En GitHub Actions, usa la variable de repositorio <code>VITE_API_URL</code> si publicas en GitHub Pages.</li>
+          <li>En Vercel o Netlify, configura la misma variable para Production y Preview según corresponda.</li>
+          <li>Redeploya el frontend después de modificar variables, porque Vite las incorpora durante el build.</li>
+        </ol>
+        <pre>VITE_API_URL=https://TU-SERVICIO.onrender.com</pre>
+        <p>No coloques una barra final. La configuración de la aplicación agrega las rutas <code>/api/articulos</code>, <code>/api/clientes</code>, <code>/api/pedidos</code> y <code>/api/empleados</code>.</p>
+      </section>
+
+      <section>
+        <h2>12. Crear los empleados iniciales</h2>
+        <p>Cuando Render y Atlas estén conectados, ejecuta el seed una sola vez. Desde el Dashboard de Render usa el Shell si tu plan lo permite o ejecuta el comando en un entorno temporal con las mismas variables:</p>
+        <pre>npm run seed:empleados</pre>
+        <p>El script genera empleados iniciales y muestra sus credenciales una vez. Entrégalas por un canal seguro. No ejecutes el seed repetidamente sin revisar primero la base de datos.</p>
+      </section>
+
+      <section>
+        <h2>13. CI/CD con Render</h2>
+        <ol class="steps">
+          <li>Conserva el workflow CI del frontend para lint, pruebas y build.</li>
+          <li>Protege la rama <code>main</code> y exige que el check de CI sea exitoso.</li>
+          <li>Configura Render para desplegar desde <code>main</code> después de un merge aprobado.</li>
+          <li>Desactiva deploy automático temporalmente si necesitas controlar una migración de datos.</li>
+          <li>Después de cada deploy revisa logs, ruta raíz y una operación de lectura.</li>
+        </ol>
+        <p>Para un flujo más estricto, usa un Deploy Hook de Render desde GitHub Actions después de completar las pruebas. Guarda el hook como secreto; nunca lo escribas en el YAML.</p>
+      </section>
+
+      <section>
+        <h2>14. Pruebas de aceptación</h2>
+        <ol class="steps">
+          <li>Abre el frontend en una ventana privada.</li>
+          <li>Inicia sesión con el administrador.</li>
+          <li>Comprueba que los artículos cargan desde Render.</li>
+          <li>Prueba Inventario, Pedidos y Ventas.</li>
+          <li>Sube una imagen menor de 5 MB y confirma que se almacena en Cloudinary.</li>
+          <li>Crea un artículo de prueba y comprueba que aparece al recargar.</li>
+          <li>Registra una venta controlada y verifica el pedido.</li>
+          <li>Prueba una cuenta de encargado y una de vendedor para validar permisos.</li>
+          <li>Revisa la consola del navegador: no debe haber errores CORS, 401, 404 o mixed content.</li>
+        </ol>
+        <pre>curl -i https://TU-SERVICIO.onrender.com/
+curl -i https://TU-SERVICIO.onrender.com/api/articulos</pre>
+      </section>
+
+      <section>
+        <h2>15. Seguridad y límites</h2>
+        <ul class="checklist">
+          <li>Rota cualquier credencial que haya sido compartida o expuesta.</li>
+          <li>Usa secretos JWT diferentes para desarrollo y producción.</li>
+          <li>No uses la contraseña de MongoDB Atlas como contraseña de administrador.</li>
+          <li>Restringe CORS a los dominios reales del frontend.</li>
+          <li>Cloudinary y MongoDB Atlas deben tener límites y alertas revisados.</li>
+          <li>No guardes imágenes en el disco de Render: el servicio puede reiniciarse.</li>
+          <li>Revisa el consumo de Render: el free tier puede dormir por inactividad.</li>
+          <li>Haz respaldos de MongoDB antes de cambios destructivos.</li>
+          <li>No expongas secretos en variables <code>VITE_*</code>, porque llegan al navegador.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>16. Solución de problemas</h2>
+        <table>
+          <thead><tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr></thead>
+          <tbody>
+            <tr><td>Render no termina de iniciar</td><td>Variable faltante o fallo de conexión a Atlas.</td><td>Revisa Logs, <code>MONGO_URI</code>, Network Access y el comando <code>npm start</code>.</td></tr>
+            <tr><td>MongoDB rechaza la conexión</td><td>IP no permitida o contraseña incorrecta.</td><td>Verifica Database Access, Network Access y codificación de la contraseña en la URI.</td></tr>
+            <tr><td>Error CORS en frontend</td><td>Origen no incluido en <code>FRONTEND_ORIGINS</code>.</td><td>Agrega el origen exacto, reinicia Render y borra caché si es necesario.</td></tr>
+            <tr><td>El frontend apunta a localhost</td><td><code>VITE_API_URL</code> no estaba definida durante el build.</td><td>Configura la variable en el proveedor frontend y vuelve a construir.</td></tr>
+            <tr><td>Las imágenes no suben</td><td><code>CLOUDINARY_URL</code> ausente, inválida o archivo mayor de 5 MB.</td><td>Revisa la variable, el formato y el límite de archivo.</td></tr>
+            <tr><td>Render responde lento inicialmente</td><td>Suspensión por inactividad del plan gratuito.</td><td>Espera el arranque; para disponibilidad permanente usa un plan de pago o proveedor distinto.</td></tr>
+            <tr><td>Login devuelve 401</td><td>Correo, hash o JWT incorrectos.</td><td>Regenera el hash bcrypt y revisa las variables del servicio.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>17. Checklist final</h2>
+        <ul class="checklist">
+          <li>Clúster M0 de Atlas creado y accesible desde Render.</li>
+          <li>Usuario de base de datos y contraseña configurados.</li>
+          <li>Cloudinary configurado sin secretos en Git.</li>
+          <li>Web Service de Render usa <code>npm ci</code> y <code>npm start</code>.</li>
+          <li>Variables de producción completas en Render.</li>
+          <li>Ruta raíz del backend responde correctamente.</li>
+          <li><code>FRONTEND_ORIGINS</code> contiene el origen real.</li>
+          <li><code>VITE_API_URL</code> contiene la URL HTTPS de Render.</li>
+          <li>CI pasa lint, pruebas y build.</li>
+          <li>Login, catálogo, inventario, ventas, pedidos y carga de imágenes probados.</li>
+          <li>Credenciales iniciales entregadas de forma segura.</li>
+          <li>Plan gratuito, límites y suspensión por inactividad revisados.</li>
+        </ul>
+        <div class="notice success"><strong>Despliegue correcto:</strong> frontend accesible, backend respondiendo, CORS sin errores, datos persistentes en Atlas e imágenes alojadas en Cloudinary.</div>
+      </section>
+    </main>
+
+    <footer>Manual Render + MongoDB Atlas + Cloudinary · TiendaWeb · Revisión 1.0</footer>
+  </article>
+</body>
+</html>

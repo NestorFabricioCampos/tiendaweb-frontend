@@ -22,6 +22,17 @@ export const clearAccessToken = () => {
   session().removeItem(USER_KEY)
 }
 
+export const readResponse = async (response) => {
+  const contentType = response.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) return null
+
+  try {
+    return await response.json()
+  } catch {
+    return null
+  }
+}
+
 export const apiFetch = async (url, options = {}) => {
   const headers = new Headers(options.headers || {})
   const token = getAccessToken()
