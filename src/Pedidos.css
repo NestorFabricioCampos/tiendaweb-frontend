@@ -487,3 +487,9 @@
     gap: 0.25rem;
   }
 }
+
+@media (min-width: 1600px) {
+  .pedidos-container {
+    padding: 3rem clamp(2rem, 4vw, 5rem);
+  }
+}

@@ -408,7 +408,7 @@ function Clientes() {
                   key={cliente._id} 
                   className={`row-${cliente.activo ? 'activo' : 'inactivo'}`}
                 >
-                  <td className="nombre-cliente">
+                  <td className="nombre-cliente" data-label="Nombre">
                     <div className="avatar">{cliente.nombre.charAt(0)}</div>
                     <div>
                       <p className="cliente-nombre">{cliente.nombre} {cliente.apellido}</p>
@@ -416,25 +416,25 @@ function Clientes() {
                     </div>
                   </td>
 
-                  <td className="email-cliente">
+                  <td className="email-cliente" data-label="Email">
                     <a href={`mailto:${cliente.email}`}>{cliente.email}</a>
                   </td>
 
-                  <td className="telefono-cliente">
+                  <td className="telefono-cliente" data-label="Teléfono">
                     <a href={`tel:${cliente.telefono}`}>{cliente.telefono}</a>
                   </td>
 
-                  <td className="ciudad-cliente">
+                  <td className="ciudad-cliente" data-label="Ciudad">
                     {cliente.ciudad || '—'}
                   </td>
 
-                  <td>
+                  <td data-label="Estado">
                     <span className={`badge ${cliente.activo ? 'activo' : 'inactivo'}`}>
                       {cliente.activo ? '✓ Activo' : '⊘ Inactivo'}
                     </span>
                   </td>
 
-                  <td className="acciones-celda">
+                  <td className="acciones-celda" data-label="Acciones">
                     <div className="acciones-grupo">
                       <button
                         className="btn-editar"

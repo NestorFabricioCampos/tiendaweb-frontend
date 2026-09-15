@@ -519,3 +519,135 @@
     font-size: 1.5rem;
   }
 }
+
+@media (min-width: 1600px) {
+  .inventario-container {
+    padding: 3rem clamp(2rem, 4vw, 5rem);
+  }
+}
+
+@media (max-width: 720px) {
+  .inventario-header {
+    padding: 1rem;
+  }
+
+  .inventario-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .refresh-btn {
+    width: 100%;
+  }
+
+  .filtros-seccion {
+    padding: 1rem;
+  }
+
+  .filtro-stock {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filtro-stock select {
+    width: 100%;
+  }
+
+  .tabla-contenedor {
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .inventario-tabla,
+  .inventario-tabla thead,
+  .inventario-tabla tbody,
+  .inventario-tabla tr,
+  .inventario-tabla td {
+    display: block;
+    width: 100%;
+  }
+
+  .inventario-tabla thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .inventario-tabla tr {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  .inventario-tabla td {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.7rem 0.25rem;
+    border-bottom: 1px solid #f0f0f0;
+    overflow-wrap: anywhere;
+  }
+
+  .inventario-tabla td::before {
+    color: #6b7280;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .inventario-tabla td:nth-child(1)::before { content: 'Artículo'; }
+  .inventario-tabla td:nth-child(2)::before { content: 'Cantidad'; }
+  .inventario-tabla td:nth-child(3)::before { content: 'Estado'; }
+  .inventario-tabla td:nth-child(4)::before { content: 'Precio'; }
+  .inventario-tabla td:nth-child(5)::before { content: 'Acciones'; }
+  .inventario-tabla td:last-child { border-bottom: 0; }
+
+  .nombre-articulo,
+  .cantidad-celda,
+  .precio-celda,
+  .acciones-celda {
+    min-width: 0;
+    text-align: left;
+  }
+
+  .articulo-info,
+  .acciones-grupo {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .acciones-grupo {
+    justify-content: flex-start;
+  }
+
+  .acciones-grupo button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .inventario-container {
+    padding: 0.75rem;
+  }
+
+  .inventario-tabla td {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .articulo-detalles {
+    display: none;
+  }
+
+  .acciones-grupo button {
+    min-width: 0;
+  }
+}

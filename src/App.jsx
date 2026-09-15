@@ -10,6 +10,7 @@ import { apiFetch, clearAccessToken, getAccessToken, getAuthUser, readResponse, 
 import { canAccessManagement } from './domain'
 
 const API_URL = ARTICULOS_API_URL
+const GENERIC_IMAGE_URL = '/imagen-articulo-generica.svg'
 
 const initialForm = {
   Articulo: '',
@@ -34,7 +35,8 @@ function App() {
   const [subiendoImagen, setSubiendoImagen] = useState(false)
   const canAccessClientes = canAccessManagement(user?.role)
   const canAccessEmpleados = canAccessManagement(user?.role)
-  const isEncargado = user?.role === 'encargado'
+  const canAccessEncargadoManual = user?.role === 'admin' || user?.role === 'encargado'
+  const canAccessWordManuals = user?.role === 'admin'
 
   const fetchArticulos = async () => {
     setLoading(true)
@@ -106,7 +108,7 @@ function App() {
     return (
       <main className="login-shell">
         <form className="login-card" onSubmit={handleLogin}>
-          <p className="eyebrow">Store Admin</p>
+          <p className="eyebrow">Atlas POS Software | Panel Admin</p>
           <h1>Iniciar sesión</h1>
           {loginError && <p className="login-error">{loginError}</p>}
           <label htmlFor="login-email">Correo</label>
@@ -115,35 +117,7 @@ function App() {
           <input id="login-password" type="password" value={loginForm.password} onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })} required />
           <button className="primary-btn" type="submit" disabled={loggingIn}>
             {loggingIn ? 'Validando...' : 'Entrar'}
-          </button>
-          <a
-            className="deployment-manual-link"
-            href="./manual-despliegue-desarrollador.html"
-            download="manual-despliegue-desarrollador.html"
-          >
-            Descargar manual de despliegue para desarrolladores
-          </a>
-          <a
-            className="deployment-manual-link"
-            href="./manual-despliegue-vercel-heroku.html"
-            download="manual-despliegue-vercel-heroku.html"
-          >
-            Descargar manual Vercel + Heroku
-          </a>
-          <a
-            className="deployment-manual-link"
-            href="./manual-despliegue-render-atlas-cloudinary.html"
-            download="manual-despliegue-render-atlas-cloudinary.html"
-          >
-            Descargar manual Render + Atlas + Cloudinary
-          </a>
-          <a
-            className="deployment-manual-link"
-            href="./manual-despliegue-vercel-render-atlas-cloudinary.html"
-            download="manual-despliegue-vercel-render-atlas-cloudinary.html"
-          >
-            Descargar manual completo del stack recomendado
-          </a>
+          </button>          
         </form>
       </main>
     )
@@ -191,6 +165,10 @@ function App() {
 
     const method = editandoId ? 'PUT' : 'POST'
     const url = editandoId ? `${API_URL}/${editandoId}` : API_URL
+    const datosArticulo = {
+      ...form,
+      ImagenArt: form.ImagenArt.trim() || GENERIC_IMAGE_URL,
+    }
 
     try {
       const res = await apiFetch(url, {
@@ -198,7 +176,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(datosArticulo),
       })
 
       const data = await readResponse(res)
@@ -220,7 +198,7 @@ function App() {
     setEditandoId(articulo._id)
     setForm({
       Articulo: articulo.Articulo,
-      ImagenArt: articulo.ImagenArt,
+      ImagenArt: articulo.ImagenArt || '',
       Detalles: articulo.Detalles,
       Precio: articulo.Precio || '',
     })
@@ -260,10 +238,10 @@ function App() {
     <div className="admin-shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand-mark">S</span>
+          <span className="brand-mark">A</span>
           <div>
             <p className="eyebrow">Panel</p>
-            <h1>Store Admin</h1>
+            <h1>Atlas POS</h1>
           </div>
         </div>
 
@@ -309,15 +287,45 @@ function App() {
             </button>
           )}
         </nav>
-        {isEncargado && (
+        <a
+          className="manual-link"
+          href="./manual-usuario-empleados.html"
+          download="manual-usuario-empleados.html"
+        >
+          Manual de Empleados
+        </a>
+        {canAccessWordManuals && (
           <a
             className="manual-link"
-            href="./manual-usuario-encargado.html"
-            download="manual-usuario-encargado.html"
+            href="./manual-usuario-empleados.docx"
+            download="manual-usuario-empleados.docx"
           >
-            Descargar manual de encargado
+            Manual de Empleados en Word
           </a>
         )}
+        {canAccessEncargadoManual && (
+          <>
+            <a
+              className="manual-link"
+              href="./manual-usuario-encargado.html"
+              download="manual-usuario-encargado.html"
+            >
+              Manual de Encargados
+            </a>
+            {canAccessWordManuals && (
+              <a
+                className="manual-link"
+                href="./manual-usuario-encargado.docx"
+                download="manual-usuario-encargado.docx"
+              >
+                Manual de Encargados en Word
+              </a>
+            )}
+          </>
+        )}
+                 
+                
+       
         <p className="user-role">Sesión: {user?.role || 'admin'}</p>
         <button className="nav-item logout-btn" onClick={handleLogout}>Cerrar sesión</button>
       </aside>
@@ -330,12 +338,6 @@ function App() {
                 <p className="eyebrow">Administración</p>
                 <h2>Catálogo de calzado</h2>
               </div>
-              <button className="primary-btn" onClick={() => {
-                setEditandoId(null)
-                setForm(initialForm)
-              }}>
-                + Nuevo artículo
-              </button>
             </header>
 
             <section className="form-card">
@@ -353,7 +355,7 @@ function App() {
                   />
                 </div>
 
-                <div className="field-group">
+                <div className="field-group image-field">
                   <label htmlFor="ImagenArt">Imagen</label>
                   <input
                     id="imagenArchivo"
@@ -371,13 +373,12 @@ function App() {
                     placeholder="URL de Cloudinary o imagen externa"
                   />
                   {subiendoImagen && <small>Subiendo imagen a Cloudinary...</small>}
-                  {form.ImagenArt && (
-                    <img
-                      src={form.ImagenArt}
-                      alt="Vista previa del artículo"
-                      className="form-image-preview"
-                    />
-                  )}
+                  <small className="image-help">Si no agregas una imagen, se usará esta imagen genérica:</small>
+                  <img
+                    src={form.ImagenArt || GENERIC_IMAGE_URL}
+                    alt="Vista previa del artículo"
+                    className="form-image-preview"
+                  />
                 </div>
 
                 <div className="field-group">
@@ -405,7 +406,7 @@ function App() {
                   />
                 </div>
 
-                <button type="submit" className="submit-btn">
+                <button type="submit" className="submit-btn articulo-submit-btn">
                   {editandoId ? 'Actualizar artículo' : 'Guardar artículo'}
                 </button>
               </form>
