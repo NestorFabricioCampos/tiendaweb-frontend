@@ -19,6 +19,41 @@ const initialForm = {
   Precio: '',
 }
 
+function StatusFooter({ user }) {
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine)
+  const [currentTime, setCurrentTime] = useState(() => new Date())
+
+  useEffect(() => {
+    const updateConnection = () => setIsOnline(navigator.onLine)
+    const clock = window.setInterval(() => setCurrentTime(new Date()), 1000)
+
+    window.addEventListener('online', updateConnection)
+    window.addEventListener('offline', updateConnection)
+    return () => {
+      window.clearInterval(clock)
+      window.removeEventListener('online', updateConnection)
+      window.removeEventListener('offline', updateConnection)
+    }
+  }, [])
+
+  const formattedTime = currentTime.toLocaleString('es-ES', {
+    dateStyle: 'medium',
+    timeStyle: 'medium',
+  })
+  const connectedUser = user?.name || user?.nombre || user?.email || 'No autenticado'
+
+  return (
+    <footer className={`status-footer ${isOnline ? '' : 'status-footer-offline'}`}>
+      <span><strong>Usuario conectado:</strong> {connectedUser}</span>
+      <span className="status-footer-connection">
+        <span className="status-footer-dot" aria-hidden="true" />
+        <strong>Conectividad al Servidor:</strong> {isOnline ? 'Conectado' : 'Sin conexión'}
+      </span>
+      <span><strong>Fecha y Hora:</strong> {formattedTime}</span>
+    </footer>
+  )
+}
+
 function App() {
   const [token, setToken] = useState(getAccessToken)
   const [user, setUser] = useState(getAuthUser)
@@ -117,8 +152,9 @@ function App() {
           <input id="login-password" type="password" value={loginForm.password} onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })} required />
           <button className="primary-btn" type="submit" disabled={loggingIn}>
             {loggingIn ? 'Validando...' : 'Entrar'}
-          </button>          
+          </button>
         </form>
+        <StatusFooter user={user} />
       </main>
     )
   }
@@ -476,6 +512,7 @@ function App() {
         ) : seccionActiva === 'empleados' && canAccessEmpleados ? (
           <Empleados />
         ) : null}
+        <StatusFooter user={user} />
       </main>
     </div>
   )

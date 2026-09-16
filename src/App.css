@@ -93,6 +93,8 @@
 }
 
 .content {
+  display: flex;
+  flex-direction: column;
   padding: 32px;
 }
 
@@ -297,6 +299,7 @@
 
 .login-shell {
   display: grid;
+  grid-template-rows: 1fr auto;
   min-height: 100vh;
   place-items: center;
   padding: 24px;
@@ -381,6 +384,58 @@ button:disabled {
   text-transform: capitalize;
 }
 
+.status-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+  margin-top: auto;
+  padding: 14px 18px;
+  border: 1px solid #dbe4ef;
+  border-radius: 12px;
+  background: #eef6ff;
+  color: #334155;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.content > .status-footer {
+  margin-top: 28px;
+}
+
+.status-footer strong {
+  color: #172033;
+}
+
+.status-footer-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.status-footer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.14);
+}
+
+.status-footer-offline {
+  border-color: #ef4444;
+  background: #dc2626;
+  color: white;
+}
+
+.status-footer-offline strong {
+  color: white;
+}
+
+.status-footer-offline .status-footer-dot {
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+}
+
 @media (max-width: 900px) {
   .admin-shell {
     grid-template-columns: 1fr;
@@ -412,5 +467,11 @@ button:disabled {
     align-items: flex-start;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .status-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
   }
 }
