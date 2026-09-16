@@ -3,3 +3,7 @@ node_modules/
 data/
 .DS_Store
 npm-debug.log*
+
+seedClientes.js
+seedEmpleados.js
+seedProductos.js
