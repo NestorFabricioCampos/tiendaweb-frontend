@@ -64,17 +64,4 @@ app.use((err, req, res, next) => {
 
 const cors = require('cors')
 
-app.use(cors({
-  origin: [
-    'https://nestorfabriciocampos.github.io',
-    'http://localhost:5173',
-    'http://localhost:3000'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}))
-
-app.options('*', cors())
-
 module.exports = app;
