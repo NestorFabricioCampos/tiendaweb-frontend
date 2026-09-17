@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/+$/, '')
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://tiendaweb-backend.onrender.com' || 'http://localhost:3000').replace(/\/+$/, '')
 
 export { API_BASE_URL }
 
