@@ -34,3 +34,5 @@ const connectDB = async () => {
 };
 
 module.exports = connectDB;
+
+// Fin de archivo
