@@ -1,3 +1,7 @@
+// Limpia barras finales y remueve '/api' si viene incluido en la variable de entorno
+const rawUrl = (import.meta.env.VITE_API_URL || 'https://tiendaweb-backend.onrender.com').replace(/\/+$/, '');
+export const API_BASE_URL = rawUrl.endsWith('/api') ? rawUrl.slice(0, -4) : rawUrl;
+
 const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://tiendaweb-backend.onrender.com' || 'http://localhost:3000').replace(/\/+$/, '')
 
 export { API_BASE_URL }
