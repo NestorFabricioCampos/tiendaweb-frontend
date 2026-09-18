@@ -1,18 +1,32 @@
 const mongoose = require('mongoose');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/tiendaweb';
+// Cargar variables de entorno si estás en desarrollo local (asegúrate de tener instalado 'dotenv')
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
 
 const connectDB = async () => {
+  const MONGO_URI = process.env.MONGO_URI;
+
+  // Validación temprana para evitar caer en localhost por descuido en producción
+  if (!MONGO_URI) {
+    console.error('CRÍTICO: La variable de entorno MONGO_URI no está definida.');
+    process.exit(1);
+  }
+
   try {
-    const connection = await mongoose.connect(MONGO_URI);
-    const colecciones = await connection.connection.db.listCollections({ name: 'pedidos' }).toArray();
+    const conn = await mongoose.connect(MONGO_URI);
+    
+    // Acceso directo a la base de datos nativa desde la conexión global de mongoose
+    const db = mongoose.connection.db;
+    const colecciones = await db.listCollections({ name: 'pedidos' }).toArray();
 
     if (colecciones.length === 0) {
-      await connection.connection.db.createCollection('pedidos');
+      await db.createCollection('pedidos');
+      console.log('Colección "pedidos" creada correctamente.');
     }
 
-    console.log('MongoDB conectado correctamente');
-    console.log('Colección pedidos disponible en la base tiendaweb');
+    console.log(`MongoDB conectado correctamente a: ${conn.connection.host}`);
   } catch (error) {
     console.error('Error al conectar MongoDB:', error.message);
     process.exit(1);
