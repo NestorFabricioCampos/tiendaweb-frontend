@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manual de usuario para empleados de TiendaWeb">
+  <title>Manual de usuario para empleados | TiendaWeb</title>
+  <style>
+    :root { color: #1d2939; background: #f4f7fb; font-family: Georgia, 'Times New Roman', serif; line-height: 1.65; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .page { width: min(100% - 32px, 920px); margin: 32px auto; background: #fff; box-shadow: 0 16px 40px rgba(30, 41, 59, .1); }
+    header { padding: 56px 64px 44px; color: #fff; background: #172033; }
+    .kicker { margin: 0 0 12px; color: #a5b4fc; font: 700 12px/1.2 Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { max-width: 620px; margin: 0; font-size: clamp(2.1rem, 5vw, 3.8rem); }
+    .subtitle { max-width: 620px; margin: 18px 0 0; color: #d8dee9; font-size: 1.1rem; }
+    main { padding: 42px 64px 64px; }
+    h2 { margin: 40px 0 14px; color: #172033; font-size: 1.75rem; }
+    h2:first-child { margin-top: 0; }
+    h3 { margin: 26px 0 8px; color: #334155; font-size: 1.2rem; }
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 24px; }
+    li { margin: 7px 0; }
+    .notice { margin: 22px 0; padding: 16px 18px; border-left: 4px solid #6475e8; background: #eef2ff; }
+    .steps { counter-reset: step; list-style: none; padding: 0; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+    .steps li::before { content: counter(step); display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; color: #fff; background: #4f46e5; font: 700 14px Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: .96rem; }
+    th, td { padding: 11px 12px; border: 1px solid #dbe3ef; text-align: left; vertical-align: top; }
+    th { color: #172033; background: #eef2f7; }
+    code { padding: 2px 5px; border-radius: 4px; background: #eef2f7; font-family: Consolas, monospace; }
+    footer { padding: 22px 64px; color: #64748b; border-top: 1px solid #e2e8f0; font: .85rem Arial, sans-serif; }
+    @media print {
+      :root { background: #fff; }
+      .page { width: 100%; margin: 0; box-shadow: none; }
+      header { color: #000; background: #fff; border-bottom: 2px solid #172033; }
+      .kicker, .subtitle { color: #334155; }
+      main { padding: 28px 0; }
+      footer { padding: 22px 0; }
+      h2, h3 { break-after: avoid; }
+      table, .notice { break-inside: avoid; }
+    }
+    @media (max-width: 640px) {
+      .page { width: 100%; margin: 0; }
+      header, main, footer { padding-left: 24px; padding-right: 24px; }
+      table { display: block; overflow-x: auto; white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <article class="page">
+    <header>
+      <p class="kicker">TiendaWeb · Documento operativo</p>
+      <h1>Manual de usuario para empleados</h1>
+      <p class="subtitle">Guía práctica para gestionar el catálogo, el inventario, las ventas, los pedidos, los clientes y los empleados.</p>
+    </header>
+
+    <main>
+      <section>
+        <h2>1. Acceso al sistema</h2>
+        <ol class="steps">
+          <li>Abre la dirección de TiendaWeb en tu navegador.</li>
+          <li>Escribe el correo electrónico y la contraseña asignados.</li>
+          <li>Pulsa <strong>Entrar</strong>. Si los datos son correctos aparecerá el panel de administración.</li>
+        </ol>
+        <div class="notice"><strong>Seguridad:</strong> no compartas tus credenciales. Usa <strong>Cerrar sesión</strong> al terminar, especialmente en equipos compartidos.</div>
+      </section>
+
+      <section>
+        <h2>2. Navegación y permisos</h2>
+        <p>La barra lateral permite cambiar de módulo. Las opciones visibles dependen del rol asignado:</p>
+        <table>
+          <thead><tr><th>Módulo</th><th>Uso principal</th><th>Acceso</th></tr></thead>
+          <tbody>
+            <tr><td>Artículos</td><td>Crear, editar, buscar y eliminar productos del catálogo.</td><td>Todos los empleados</td></tr>
+            <tr><td>Inventario</td><td>Consultar existencias, precios y ajustar cantidades.</td><td>Todos los empleados</td></tr>
+            <tr><td>Pedidos</td><td>Consultar pedidos y cambiar su estado.</td><td>Todos los empleados</td></tr>
+            <tr><td>Ventas</td><td>Registrar una venta desde el catálogo disponible.</td><td>Todos los empleados</td></tr>
+            <tr><td>Clientes</td><td>Crear, modificar, buscar y dar de baja clientes.</td><td>Administrador y encargado</td></tr>
+            <tr><td>Empleados</td><td>Gestionar las cuentas del personal.</td><td>Administrador y encargado</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>3. Artículos y catálogo</h2>
+        <h3>Crear un artículo</h3>
+        <ol class="steps">
+          <li>Entra en <strong>Artículos</strong>; el formulario <strong>Agregar artículo</strong> aparece directamente debajo del encabezado.</li>
+          <li>Escribe el nombre, el precio y los detalles del producto.</li>
+          <li>Selecciona una imagen desde el explorador o pega una URL pública de imagen.</li>
+          <li>Si no agregas una imagen, el sistema guardará una imagen genérica automáticamente.</li>
+          <li>Pulsa <strong>Guardar artículo</strong> una sola vez y comprueba que aparece en la lista.</li>
+        </ol>
+        <h3>Recomendaciones para imágenes</h3>
+        <ul>
+          <li>Usa una fotografía nítida, bien iluminada y correspondiente al producto.</li>
+          <li>Verifica que las URL sean públicas y estables.</li>
+          <li>Si una imagen no carga, conserva la imagen genérica y comunícalo al encargado.</li>
+        </ul>
+        <h3>Editar o eliminar</h3>
+        <p>Usa <strong>Editar</strong> en la tarjeta del producto para modificar sus datos. Para eliminarlo, pulsa <strong>Eliminar</strong> y confirma la operación. La eliminación es permanente en el catálogo.</p>
+      </section>
+
+      <section>
+        <h2>4. Inventario</h2>
+        <p>El módulo muestra el total de artículos, las unidades disponibles y los artículos sin stock.</p>
+        <ul>
+          <li>Usa el buscador para localizar un producto.</li>
+          <li>Usa el filtro para ver todo el stock, stock medio, bajo stock o productos sin existencias.</li>
+          <li>Pulsa <strong>+</strong> o <strong>-</strong> para ajustar una unidad.</li>
+          <li>Pulsa el botón de edición para introducir la cantidad y el precio exactos; después selecciona <strong>Guardar</strong>.</li>
+          <li>Pulsa <strong>Actualizar</strong> para consultar los datos más recientes del servidor.</li>
+        </ul>
+        <div class="notice"><strong>Recomendación:</strong> revisa que la cantidad sea correcta antes de guardar. Las cantidades no pueden ser negativas.</div>
+      </section>
+
+      <section>
+        <h2>5. Registrar una venta</h2>
+        <ol class="steps">
+          <li>Abre <strong>Ventas</strong> y busca el producto en el catálogo.</li>
+          <li>Pulsa <strong>Agregar</strong>. La cantidad se limita automáticamente al stock disponible.</li>
+          <li>Revisa el carrito y cambia la cantidad si es necesario.</li>
+          <li>Escribe el nombre y el correo del cliente.</li>
+          <li>Selecciona el estado inicial del pedido.</li>
+          <li>Pulsa <strong>Confirmar venta</strong>. El sistema mostrará el número del pedido y actualizará el catálogo.</li>
+        </ol>
+        <p>Para retirar un producto del carrito, pulsa <strong>Quitar</strong>. Antes de confirmar, comprueba el total y las unidades.</p>
+        <div class="notice"><strong>Importante:</strong> si la pantalla tarda en responder después de confirmar, espera y revisa Pedidos antes de repetir la operación.</div>
+      </section>
+
+      <section>
+        <h2>6. Gestionar pedidos</h2>
+        <p>En <strong>Pedidos</strong> puedes buscar por número o cliente y filtrar por estado.</p>
+        <ul>
+          <li><strong>Pendiente:</strong> el pedido todavía requiere atención o entrega.</li>
+          <li><strong>Entregado:</strong> el pedido se ha completado.</li>
+        </ul>
+        <p>Usa el botón de acción de cada fila para alternar el estado. Espera a que termine la actualización antes de repetir la acción.</p>
+      </section>
+
+      <section>
+        <h2>7. Clientes</h2>
+        <p>Este módulo está disponible para administradores y encargados. Puedes registrar nombre, documento, correo, teléfono y datos de contacto. Usa los filtros para separar clientes activos e inactivos.</p>
+        <p>Al dar de baja un cliente, confirma solo después de verificar su identidad. Los datos mostrados en la tabla incluyen enlaces directos para correo y teléfono.</p>
+      </section>
+
+      <section>
+        <h2>8. Empleados</h2>
+        <p>Este módulo está disponible para administradores y encargados. Permite registrar o modificar empleados y asignar la categoría <strong>Encargado</strong> o <strong>Vendedor</strong>.</p>
+        <ul>
+          <li>Para un empleado nuevo, define una contraseña de al menos seis caracteres.</li>
+          <li>Al modificar un empleado, deja la contraseña vacía para conservar la actual.</li>
+          <li>Usa el estado para activar o desactivar una cuenta sin borrar el registro.</li>
+          <li>Usa <strong>Dar de baja</strong> solo cuando corresponda y confirma la operación.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>9. Problemas frecuentes</h2>
+        <table>
+          <thead><tr><th>Situación</th><th>Qué hacer</th></tr></thead>
+          <tbody>
+            <tr><td>No puedo iniciar sesión</td><td>Comprueba el correo, la contraseña y que el teclado no tenga activado Bloq Mayús. Si continúa, contacta con un administrador.</td></tr>
+            <tr><td>No aparecen datos</td><td>Comprueba la conexión y pulsa <strong>Actualizar</strong>. Si el problema continúa, informa del módulo y la hora del error.</td></tr>
+            <tr><td>La sesión ha caducado</td><td>Vuelve a iniciar sesión. El sistema cierra la sesión automáticamente cuando el servidor rechaza el token.</td></tr>
+            <tr><td>No puedo acceder a Clientes o Empleados</td><td>Solicita al administrador o encargado que revise tu rol.</td></tr>
+            <tr><td>Una operación devuelve un error</td><td>No repitas muchas veces la acción. Anota el mensaje, verifica los datos y comunícalo al responsable.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>10. Buenas prácticas</h2>
+        <ul>
+          <li>Comprueba nombres, precios, cantidades y cliente antes de guardar.</li>
+          <li>No abras varias operaciones simultáneas sobre el mismo pedido o producto.</li>
+          <li>Usa imágenes claras y enlaces accesibles para el catálogo.</li>
+          <li>Cierra la sesión al finalizar y no guardes contraseñas en equipos compartidos.</li>
+          <li>Reporta errores con el módulo, la acción realizada y el mensaje mostrado.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>11. Rutina de trabajo</h2>
+        <table>
+          <thead><tr><th>Momento</th><th>Qué revisar</th></tr></thead>
+          <tbody>
+            <tr><td>Inicio de jornada</td><td>Pedidos pendientes, productos sin stock y novedades comunicadas por el encargado.</td></tr>
+            <tr><td>Durante la jornada</td><td>Datos del cliente, cantidades del carrito, total y estado de cada venta.</td></tr>
+            <tr><td>Recepción de mercancía</td><td>Conteo físico y actualización de cantidades en Inventario.</td></tr>
+            <tr><td>Fin de jornada</td><td>Pedidos atendidos, ventas confirmadas, incidencias reportadas y cierre de sesión.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>12. Qué informar al encargado</h2>
+        <p>Comunica cualquier diferencia o error con información concreta:</p>
+        <ul>
+          <li>Módulo y acción que estabas realizando.</li>
+          <li>Fecha y hora aproximada.</li>
+          <li>Mensaje exacto que mostró el sistema.</li>
+          <li>Nombre o número del registro afectado, sin compartir contraseñas.</li>
+          <li>Si el problema se repite o afecta a otros registros.</li>
+        </ul>
+        <div class="notice"><strong>Seguridad:</strong> nunca envíes contraseñas, tokens ni datos privados de clientes en un reporte.</div>
+      </section>
+    </main>
+
+    <footer>Manual de usuario para empleados · Atlas POS · Revisión 2.0 · 15 de septiembre de 2026</footer>
+  </article>
+</body>
+</html>
